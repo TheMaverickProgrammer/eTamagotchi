@@ -3,12 +3,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.geom.AffineTransform;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 
-public class BasicApp extends Thread {
+public class eTamagotchi extends Thread {
 
     // Java Swing GUI drawing stuff
     static final double TILE_WIDTH = 480/10, TILE_HEIGHT = 384/6, NUM_COLS = 10, NUM_ROWS = 6;
@@ -16,14 +18,13 @@ public class BasicApp extends Thread {
     static Timer timer;
 
     // Server/client stuff
-    static final String PORT = "9999";
+    static final String PORT = "9999"; // if hosting, this is the port to use
     static BattleThread battleThread = null;
-    static boolean isHosting = false;
 
     // Monster Stuff
     static int HP = 1;
     static int maxHP = 6;
-    static int maxDamage = (int)(1.0+(Math.random()*1.0)); // 1 or 2 blocks
+    static int maxDamage = ThreadLocalRandom.current().nextInt(1, 2 + 1); // min = 1, max = 2
     static int xpos = 0; // move around inbetween the frame
 
     // App stuff
@@ -35,6 +36,31 @@ public class BasicApp extends Thread {
       int col = tileID % (int) NUM_COLS;
 
       return tiles.getSubimage(col*(int)TILE_WIDTH, row*(int)TILE_HEIGHT, (int)TILE_WIDTH, (int)TILE_HEIGHT);
+    }
+
+    private static BufferedImage createTransformed(BufferedImage image, AffineTransform at)
+    {
+        BufferedImage newImage = new BufferedImage(
+            image.getWidth(), image.getHeight(),
+            BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = newImage.createGraphics();
+        g.transform(at);
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return newImage;
+    }
+
+    private static BufferedImage createFlipped(BufferedImage image)
+    {
+        AffineTransform at = new AffineTransform();
+        at.concatenate(AffineTransform.getScaleInstance(-1, 1));
+        at.concatenate(AffineTransform.getTranslateInstance(-image.getWidth(), 0));
+        return createTransformed(image, at);
+    }
+
+    private static void showStats() {
+      String content = "Digimon: ???\nHP : " + HP + "/" + maxHP + "\nATK: " + maxDamage;
+      JOptionPane.showMessageDialog(null, content);
     }
 
     public static void main(String[] args) throws IOException {
@@ -55,8 +81,10 @@ public class BasicApp extends Thread {
         m1.add(m11);
         m1.add(m12);
         m1.add(m13);
-        JMenuItem m21 = new JMenuItem("Reset");
+        JMenuItem m21 = new JMenuItem("Stats");
+        JMenuItem m22 = new JMenuItem("Reset");
         m2.add(m21);
+        // m2.add(m22); NOTE: reset app not implemented
 
         try {
           tiles = ImageIO.read(new File("./monsters.png"));
@@ -68,7 +96,7 @@ public class BasicApp extends Thread {
         // Choose a random monster and store it for network battles
         // 16 cols x 12 rows
         final int tileID = (int) Math.floor(Math.random()*((int)NUM_COLS*NUM_ROWS));
-        System.out.print("tileID: " + tileID);
+        System.out.print("tileID: " + tileID + "\n");
 
         final BufferedImage myMonster = getMonsterTileFromID(tileID);
 
@@ -97,10 +125,15 @@ public class BasicApp extends Thread {
             String IP = JOptionPane.showInputDialog(frame, "Enter IP address of monster", null);
             System.out.print("Dest IP: " + IP + "\n");
 
+            if(IP == null) {
+              // Canceled
+              return;
+            }
+
             // TODO: BattleThread connect
             // Finally start the battle thread in the background
             try {
-             battleThread = new BattleThread(IP, PORT, false);
+             battleThread = new BattleThread(IP, PORT, false, tileID, HP, maxDamage);
              battleThread.start();
            } catch (IOException ex) {
              ex.printStackTrace();
@@ -114,7 +147,7 @@ public class BasicApp extends Thread {
         ActionListener HostAction = new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             try {
-             battleThread = new BattleThread("", PORT, true);
+             battleThread = new BattleThread("", PORT, true, tileID, HP, maxDamage);
              battleThread.start();
             } catch (IOException ex) {
              ex.printStackTrace();
@@ -124,21 +157,53 @@ public class BasicApp extends Thread {
 
         m12.addActionListener(HostAction);
 
+        ActionListener StatsClickedAction = new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            showStats();
+          }
+        };
+
+        m21.addActionListener(StatsClickedAction);
+
         // Drawable panel at the Center
         JPanel canvas = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
-                // make it move around I guess
-                if(HP > 1) {
-                  xpos = (int)(Math.sin(System.currentTimeMillis()*0.0002)*100.0);
+                // This is our main loop for game logic which is bad design
+                boolean inBattle = false;
+
+                if(battleThread != null) {
+                  if(battleThread.isInBattle()) {
+                      inBattle = true;
+                      BufferedImage otherMonsterImg = getMonsterTileFromID(battleThread.getOtherTileID());
+                      g.drawImage(createFlipped(myMonster),
+                                (super.getWidth()/2) - (int)(TILE_WIDTH/2) - 50,
+                                (super.getHeight()/2) - (int)(TILE_HEIGHT/2),
+                                null);
+                      g.drawImage(otherMonsterImg,
+                                (super.getWidth()/2) - (int)(TILE_WIDTH/2) + 50,
+                                (super.getHeight()/2) - (int)(TILE_HEIGHT/2),
+                                null);
+                  } else {
+                    HP = battleThread.getAfterBattleHP();
+                    battleThread.stop();
+                    battleThread = null;
+                  }
                 }
 
-                g.drawImage(myMonster,
-                            (super.getWidth()/2) - (int)(TILE_WIDTH/2) - xpos,
-                            (super.getHeight()/2) - (int)(TILE_HEIGHT/2),
-                            null);
+                if(!inBattle) {
+                  // make it move around I guess
+                  if(HP > 1) {
+                    xpos = (int)(Math.sin(System.currentTimeMillis()*0.0002)*100.0);
+                  }
+
+                  g.drawImage(myMonster,
+                              (super.getWidth()/2) - (int)(TILE_WIDTH/2) - xpos,
+                              (super.getHeight()/2) - (int)(TILE_HEIGHT/2),
+                              null);
+                }
 
                 if(HP > 1) {
                   g.setColor(Color.BLACK);
