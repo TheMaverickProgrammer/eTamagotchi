@@ -140,10 +140,10 @@ class BattleThread extends Thread {
         // simulate battle
         otherHP = simulateBattle(otherHP, otherATK);
 
-        if(battleResult == "loser") {
+        if(battleResult.equals("loser")) {
           // we lost this round, tell the other they won
           out.writeUTF(String.valueOf("winner"));
-        } else if(battleResult == "winner"){
+        } else if(battleResult.equals("winner")){
           // we won, tell them they lost
           out.writeUTF(String.valueOf("loser"));
         } else {
@@ -210,12 +210,12 @@ class BattleThread extends Thread {
 
        // wait for the host to tell us who won...
        buffer = in.readUTF();
-       System.out.println("Server says " + buffer);
+       System.out.println("Server says " + buffer + ".");
 
-       if(buffer == "winner") {
+       if(buffer.equals("winner")) {
          // increase our stats
          myWins++;
-       } else if(buffer == "loser") {
+       } else if(buffer.equals("loser")) {
          myLosses++;
        }
 

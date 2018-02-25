@@ -180,7 +180,7 @@ public class eTamagotchi extends Thread {
 
                 if(battleThread != null) {
                   if(battleThread.getIsHosting()) {
-                    g.drawImage(hostImg, super.getWidth() - 50, 50, null);
+                    g.drawImage(hostImg, super.getWidth() - 45, 50, null);
                   }
 
                   if(battleThread.isInBattle()) {
@@ -258,6 +258,7 @@ public class eTamagotchi extends Thread {
         frame.getContentPane().add(BorderLayout.NORTH, mb);
         frame.getContentPane().add(BorderLayout.CENTER, canvas);
         frame.setVisible(true);
+        frame.setResizable(false);
 
         timer = new Timer(500, taskPerformer);
         timer.start();

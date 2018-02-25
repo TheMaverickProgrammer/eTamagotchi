@@ -35,6 +35,7 @@ Whoever has the most before K.O. wins. The client is updated with HP from the re
 # Room For Improvement
 Lots of it. I hacked this together in 8 hours.
 
+## Code Improvement
 * The logic is in the main thread which happens to be the render loop. Bad.
 Decouple the rendering from the main thread.
 
@@ -42,13 +43,18 @@ Decouple the rendering from the main thread.
 and forth the BattleThread and the Render instances instead of how I'm doing it.
 Divide the BattleThread into two different classes HostBattleThread and ClientBattleThread.
 
-* Too many battle flags
+* Too many battle flags managing the thread states... speaking of threads...
+
+* Unsure of the thread saftey. Each time a host or client is established a new thread is made. This can't be good.
 
 * Creating new graphics each render call in P2P for opponent has to go
 
-* Save the tamagotchi data to a file and load
+## Gameplay Improvement
+* Read from a source the correct digimon names, stats, etc...
 
-* Reward players with EXP points
+* Save the tamagotchi state data to a file and load
+
+* Reward battling monsters with EXP points (e.g. winners +3 EXP, losers +1 EXP)
 
 * Decrease health after X hours to reinforce feeding
 
@@ -57,3 +63,5 @@ Divide the BattleThread into two different classes HostBattleThread and ClientBa
 * 💩
 
 * Evolution trees
+
+* Animations
