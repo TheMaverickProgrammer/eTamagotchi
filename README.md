@@ -2,6 +2,9 @@
 ## Author
 Maverick Peppers "TheMaverickProgrammer"
 
+## License
+MIT commercial free use - open source means you can take, edit, and contribute
+
 ## Language
 java version "1.8.0_131"
 Java(TM) SE Runtime Environment (build 1.8.0_131-b11)
@@ -21,16 +24,23 @@ Inspired by Digimon "Digivices" tamagotchis circa 1990's. A good foundation for 
 * A random digimon tile is selected and random stats are generated.
 
 * eTamagotchi runs as both a host (timeout=60 seconds) and a client depending on the menu item selected.
+![menu](./screens/menu.png)
 
 * The digimon moves side to side when healthy (HP > 1)
+![after-battle](./screens/after-battle.png)
 
-* P2P battles are computed similarly to the originals: one of the devices
+* P2P battles.
+![P2P](./screens/P2P.png)
+
+* Battles are computed similarly to the originals: one of the devices
 decides who would win before the effects took place on screen. The battles were simulated.
 For eTamagotchi, the Host requests stat data from the Client and simulates
 a battle by reducing each monsters stats by eachother's attack power at the same time.
 Whoever has the most before K.O. wins. The client is updated with HP from the resulting battle.
+![combat](./screens/combat.png)
 
 * View stats from toolbar
+![stats](./screens/stats.png)
 
 # Room For Improvement
 Lots of it. I hacked this together in 8 hours.
