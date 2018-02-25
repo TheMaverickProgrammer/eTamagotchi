@@ -186,10 +186,11 @@ public class eTamagotchi extends Thread {
                                 (super.getWidth()/2) - (int)(TILE_WIDTH/2) + 50,
                                 (super.getHeight()/2) - (int)(TILE_HEIGHT/2),
                                 null);
-                  } else {
+                  }
+
+                  if(battleThread.isBattleOver()){
+                    // update our HP post battle
                     HP = battleThread.getAfterBattleHP();
-                    battleThread.stop();
-                    battleThread = null;
                   }
                 }
 

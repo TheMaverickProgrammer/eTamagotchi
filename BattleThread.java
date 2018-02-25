@@ -8,6 +8,7 @@ class BattleThread extends Thread {
   private ServerSocket myServer = null; // When HOSTING
   private boolean isHosting = false;
   private boolean isInBattle = false;
+  private boolean battleIsDone = false;
   private int tileID = 0;
   private int otherTileID = 0;
   private int myHP = 0;
@@ -48,6 +49,12 @@ class BattleThread extends Thread {
 
   public int getAfterBattleHP() {
     return myHP;
+  }
+
+  public boolean isBattleOver() {
+    boolean result = battleIsDone;
+    battleIsDone = false; // reset flag for the next battle
+    return result; // update main thread...
   }
 
   public void setOtherMonsterIP(String IP) {
@@ -116,6 +123,7 @@ class BattleThread extends Thread {
         myServer = null;
 
         isInBattle = false;
+        battleIsDone = true;
      } catch (SocketTimeoutException s) {
         System.out.println("Socket timed out!");
         isInBattle = false;
@@ -171,6 +179,7 @@ class BattleThread extends Thread {
 
        toClient.close();
        isInBattle = false;
+       battleIsDone = true;
     } catch (IOException e) {
        e.printStackTrace();
        isInBattle = false;
