@@ -8,17 +8,26 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class BasicApp {
+public class BasicApp extends Thread {
 
+    // Java Swing GUI drawing stuff
     static final double TILE_WIDTH = 480/10, TILE_HEIGHT = 384/6, NUM_COLS = 10, NUM_ROWS = 6;
     static BufferedImage tiles = null;
-
     static Timer timer;
 
+    // Server/client stuff
+    static final String PORT = "9999";
+    static BattleThread battleThread = null;
+    static boolean isHosting = false;
+
+    // Monster Stuff
     static int HP = 1;
     static int maxHP = 6;
     static int maxDamage = (int)(1.0+(Math.random()*1.0)); // 1 or 2 blocks
     static int xpos = 0; // move around inbetween the frame
+
+    // App stuff
+    static String appState = "HOME"; // possible options: "HOME", "BATTLE"
 
     private static BufferedImage getMonsterTileFromID(int tileID) {
       // tiles are 16 x 16 pixels long
@@ -41,9 +50,11 @@ public class BasicApp {
         mb.add(m1);
         mb.add(m2);
         JMenuItem m11 = new JMenuItem("Feed");
-        JMenuItem m12 = new JMenuItem("P2P Battle");
+        JMenuItem m12 = new JMenuItem("HOST P2P Battle");
+        JMenuItem m13 = new JMenuItem("JOIN P2P Battle");
         m1.add(m11);
         m1.add(m12);
+        m1.add(m13);
         JMenuItem m21 = new JMenuItem("Reset");
         m2.add(m21);
 
@@ -84,12 +95,34 @@ public class BasicApp {
         ActionListener P2PAction = new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             String IP = JOptionPane.showInputDialog(frame, "Enter IP address of monster", null);
-            System.out.print("Dest IP: " + IP);
+            System.out.print("Dest IP: " + IP + "\n");
+
+            // TODO: BattleThread connect
+            // Finally start the battle thread in the background
+            try {
+             battleThread = new BattleThread(IP, PORT, false);
+             battleThread.start();
+           } catch (IOException ex) {
+             ex.printStackTrace();
+           }
           }
         };
 
         doBattle.addActionListener(P2PAction);
-        m12.addActionListener(P2PAction);
+        m13.addActionListener(P2PAction);
+
+        ActionListener HostAction = new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            try {
+             battleThread = new BattleThread("", PORT, true);
+             battleThread.start();
+            } catch (IOException ex) {
+             ex.printStackTrace();
+            }
+          }
+        };
+
+        m12.addActionListener(HostAction);
 
         // Drawable panel at the Center
         JPanel canvas = new JPanel() {
@@ -112,7 +145,7 @@ public class BasicApp {
                 } else {
                   g.setColor(Color.RED);
                 }
-                
+
                 for(int i = 0; i < maxHP; i++) {
                   if(i < HP) {
                     g.fillRect(10*(i+1)+(40*i), 10, 30, 30);
