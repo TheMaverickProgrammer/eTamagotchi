@@ -14,7 +14,7 @@ public class eTamagotchi extends Thread {
 
     // Java Swing GUI drawing stuff
     static final double TILE_WIDTH = 480/10, TILE_HEIGHT = 384/6, NUM_COLS = 10, NUM_ROWS = 6;
-    static BufferedImage tiles = null;
+    static BufferedImage tiles = null, attackImg = null, hostImg = null;
     static Timer timer;
 
     // Server/client stuff
@@ -26,9 +26,8 @@ public class eTamagotchi extends Thread {
     static int maxHP = 6;
     static int maxDamage = ThreadLocalRandom.current().nextInt(1, 2 + 1); // min = 1, max = 2
     static int xpos = 0; // move around inbetween the frame
-
-    // App stuff
-    static String appState = "HOME"; // possible options: "HOME", "BATTLE"
+    static int wins = 0;
+    static int losses = 0;
 
     private static BufferedImage getMonsterTileFromID(int tileID) {
       // tiles are 16 x 16 pixels long
@@ -59,7 +58,10 @@ public class eTamagotchi extends Thread {
     }
 
     private static void showStats() {
-      String content = "Digimon: ???\nHP : " + HP + "/" + maxHP + "\nATK: " + maxDamage;
+      String content = "Digimon: ???\nHP : "
+                      + HP + "/" + maxHP
+                      + "\nATK: " + maxDamage
+                      + "\nKDR: " + wins + " / " + losses;
       JOptionPane.showMessageDialog(null, content);
     }
 
@@ -88,6 +90,8 @@ public class eTamagotchi extends Thread {
 
         try {
           tiles = ImageIO.read(new File("./monsters.png"));
+          hostImg = ImageIO.read(new File("./hosting.png"));
+          attackImg = ImageIO.read(new File("./attack.png"));
         } catch (Exception e) {
           // Not found, will try to throw an exception. Fail.
           return;
@@ -175,6 +179,10 @@ public class eTamagotchi extends Thread {
                 boolean inBattle = false;
 
                 if(battleThread != null) {
+                  if(battleThread.getIsHosting()) {
+                    g.drawImage(hostImg, super.getWidth() - 50, 50, null);
+                  }
+
                   if(battleThread.isInBattle()) {
                       inBattle = true;
                       BufferedImage otherMonsterImg = getMonsterTileFromID(battleThread.getOtherTileID());
@@ -186,11 +194,23 @@ public class eTamagotchi extends Thread {
                                 (super.getWidth()/2) - (int)(TILE_WIDTH/2) + 50,
                                 (super.getHeight()/2) - (int)(TILE_HEIGHT/2),
                                 null);
+
+                      // randomly add attack effects
+                      int rand = ThreadLocalRandom.current().nextInt(0, 2 + 1);
+
+                      for(int i = 0; i < rand; i++) {
+                        g.drawImage(attackImg,
+                                    (int)((double)Math.random()*(((double)super.getWidth()/2.0)+30.0)),
+                                    (super.getHeight()/2) - (int)(Math.random()*(40.0/2.0)),
+                                    null);
+                      }
                   }
 
                   if(battleThread.isBattleOver()){
-                    // update our HP post battle
+                    // update our stats post battle
                     HP = battleThread.getAfterBattleHP();
+                    wins += battleThread.getWins();
+                    losses += battleThread.getLosses();
                   }
                 }
 

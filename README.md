@@ -42,6 +42,10 @@ Decouple the rendering from the main thread.
 and forth the BattleThread and the Render instances instead of how I'm doing it.
 Divide the BattleThread into two different classes HostBattleThread and ClientBattleThread.
 
+* Too many battle flags
+
+* Creating new graphics each render call in P2P for opponent has to go
+
 * Save the tamagotchi data to a file and load
 
 * Reward players with EXP points

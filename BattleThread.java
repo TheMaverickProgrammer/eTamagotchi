@@ -13,6 +13,9 @@ class BattleThread extends Thread {
   private int otherTileID = 0;
   private int myHP = 0;
   private int myATK = 0;
+  private int myWins = 0;
+  private int myLosses = 0;
+  private String battleResult = "";
 
   public BattleThread(String otherIP, String port, boolean host, int ID, int HP, int ATK) throws IOException {
       PORT = port;
@@ -38,17 +41,44 @@ class BattleThread extends Thread {
       otherHP = otherHP - myATK;
     }
 
-    // TODO: Check who has the least amount of damage dealt. That is the winner.
+    // Check who has the least amount of damage dealt. That is the winner.
+    if(myHP < otherHP) {
+      myLosses++;
+      battleResult = "loser";
+    } else if(myHP > otherHP) {
+      myWins++;
+      battleResult = "winner";
+    } else {
+      // DRAW
+      battleResult = "draw";
+    }
 
     // We cannot have negative health
     if(myHP < 0) myHP = 0;
     if(otherHP < 0) otherHP = 0;
+
+    // If we won and our health was 0 after simulating, give a point back to winner
+    if(battleResult == "winner" && myHP == 0) {
+      myHP = 1;
+    }
 
     return otherHP;
   }
 
   public int getAfterBattleHP() {
     return myHP;
+  }
+
+  public int getWins() {
+    System.out.print("my wins: " + myWins + "\n");
+
+    return myWins;
+  }
+
+  public int getLosses() {
+    System.out.print("my losses: " + myLosses + "\n");
+
+    return myLosses;
   }
 
   public boolean isBattleOver() {
@@ -67,6 +97,10 @@ class BattleThread extends Thread {
 
   public int getOtherTileID() {
     return otherTileID;
+  }
+
+  public boolean getIsHosting() {
+    return isHosting && (!isInBattle && !battleIsDone);
   }
 
   public void run() {
@@ -106,7 +140,16 @@ class BattleThread extends Thread {
         // simulate battle
         otherHP = simulateBattle(otherHP, otherATK);
 
-        // TODO: tell the opponent who won
+        if(battleResult == "loser") {
+          // we lost this round, tell the other they won
+          out.writeUTF(String.valueOf("winner"));
+        } else if(battleResult == "winner"){
+          // we won, tell them they lost
+          out.writeUTF(String.valueOf("loser"));
+        } else {
+          // DRAW
+          out.writeUTF(String.valueOf("draw"));
+        }
 
         // Tell the opponent their updated HP
         out.writeUTF(String.valueOf(otherHP));
@@ -124,13 +167,16 @@ class BattleThread extends Thread {
 
         isInBattle = false;
         battleIsDone = true;
+        isHosting = false;
      } catch (SocketTimeoutException s) {
         System.out.println("Socket timed out!");
         isInBattle = false;
+        isHosting = false;
         return;
      } catch (IOException e) {
         e.printStackTrace();
         isInBattle = false;
+        isHosting = false;
         return;
      }
    } else {
@@ -162,7 +208,16 @@ class BattleThread extends Thread {
        out.writeUTF(String.valueOf(myHP));
        out.writeUTF(String.valueOf(myATK));
 
-       // TODO: wait for the host to tell us who won...
+       // wait for the host to tell us who won...
+       buffer = in.readUTF();
+       System.out.println("Server says " + buffer);
+
+       if(buffer == "winner") {
+         // increase our stats
+         myWins++;
+       } else if(buffer == "loser") {
+         myLosses++;
+       }
 
        // Update our health...
        buffer = in.readUTF();
