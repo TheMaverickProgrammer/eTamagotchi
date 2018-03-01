@@ -1,4 +1,6 @@
 *.class
 *.keystore
+*.dex
+*.apk
 build.sh
 build.bat
