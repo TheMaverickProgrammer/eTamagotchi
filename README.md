@@ -11,11 +11,36 @@ Java(TM) SE Runtime Environment (build 1.8.0_131-b11)
 Java HotSpot(TM) 64-Bit Server VM (build 25.131-b11, mixed mode)
 
 ## Compiling
+
+### Desktop
 `javac eTamagotchi.java`
 
 `java eTamagotchi`
 
 Doesn't get any simpler than that
+
+### Android
+Follow [this tutorial](https://www.apriorit.com/dev-blog/233-how-to-build-apk-file-from-command-line) to install Android build tools.
+
+For easier development, set your Environment variables. For unix based machines, edit the `.bash_profile` in your user's root directory. Include paths for JAVABIN, ANDROID_SDK/tools, and ANDROID_SDK/platform-tools.
+
+Here's what my `.bash_profile` looks like:
+
+```
+export JAVABIN=/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home
+export ANDROID_SDK=/Users/Maverick/Library/Android/sdk
+export PATH=${JAVABIN}:${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools:${PATH}
+```
+
+#### Signing an Android App
+Keystores are not included in the repo. You'll need to create your own keystore to sign the app [here](https://stuff.mit.edu/afs/sipb/project/android/docs/tools/building/building-cmdline.html). Keystores must reside in the same folder as your project.
+
+From your terminal in the android folder, run the keygen command:
+
+`${JAVABIN}/bin/keytool  -genkey -v -keystore  etamagotchi-release-key.keystore -alias etamagotchi  -keyalg RSA -keysize 2048  -validity 10000
+`
+
+Remember to store your password somewhere or you can't sign your apps.
 
 ## Description
 Inspired by Digimon "Digivices" tamagotchis circa 1990's. A good foundation for a more advanced virtual tamagotchi or "learning" material.
