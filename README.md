@@ -6,9 +6,28 @@ Maverick Peppers "TheMaverickProgrammer"
 MIT commercial free use - open source means you can take, edit, and contribute
 
 ## Language
-java version "1.8.0_131"
-Java(TM) SE Runtime Environment (build 1.8.0_131-b11)
-Java HotSpot(TM) 64-Bit Server VM (build 25.131-b11, mixed mode)
+Android SDK is the development kit you'll be dealing with, and with source compatibility you'll use Java 6, 7 or 8.
+
+See whichone you have installed using `java -version`
+
+On **Mac OS** you can see all installed java version using `/usr/libexec/java_home -V`
+
+Set the java version you want to use in your `.bash_profile` like so:
+
+```
+# NOTE: Leave one export command uncommented. Comment the rest.
+# Java 1.9
+export JAVA_HOME=$(/usr/libexec/java_home -v 9)
+
+# Java 1.8
+export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+
+# Java 1.7
+export JAVA_HOME=$(/usr/libexec/java_home -v 1.7)
+
+# Java 1.6
+export JAVA_HOME=$(/usr/libexec/java_home -v 1.6)
+```
 
 ## Compiling
 
@@ -27,9 +46,10 @@ For easier development, set your Environment variables. For unix based machines,
 Here's what my `.bash_profile` looks like:
 
 ```
-export JAVABIN=/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home
+export JAVABIN=${JAVA_HOME}/bin
 export ANDROID_SDK=/Users/Maverick/Library/Android/sdk
-export PATH=${JAVABIN}:${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools:${PATH}
+export PATH=${JAVABIN}:$ANDROID_SDK/tools:$ANDROID_SDK/platform-tools:$PATH
 ```
 
 #### Signing an Android App
