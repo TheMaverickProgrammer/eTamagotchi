@@ -9,6 +9,7 @@ public class MainActivity extends Activity {
    String msg = "Android : ";
    RenderView view;
 
+
    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState) {
