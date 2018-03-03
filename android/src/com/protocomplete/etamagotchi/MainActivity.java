@@ -14,11 +14,9 @@ public class MainActivity extends Activity {
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
 
-      view = new RenderView(this, null);
+      // view = new RenderView(this);
 
-      // setContentView(R.layout.main);
-      setContentView(view);
-
+      setContentView(R.layout.main);
       Log.d(msg, "The onCreate() event");
    }
 

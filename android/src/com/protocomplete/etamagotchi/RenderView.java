@@ -26,15 +26,18 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     Bitmap monsters;
     Sprite monsterSprite = null;
 
+    public RenderView(Context context) {
+      super(context);
+      init(context);
+    }
     public RenderView(Context context, AttributeSet attributes) {
       super(context, attributes);
+      init(context);
+    }
 
-      monsters = getBitmapFromAsset(context.getAssets(), "monsters.png");
-
-      holder = getHolder();
-      // holder.addCallback(this);
-
-      this.setOnTouchListener(this);
+    public RenderView(Context context, AttributeSet attrs, int defStyleAttr) {
+      super(context, attrs, defStyleAttr);
+      init(context);
     }
 
     /*public void surfaceCreated(SurfaceHolder holder) {
@@ -42,6 +45,15 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       draw(canvas);
       getHolder().unlockCanvasAndPost(canvas);
     }*/
+
+    public void init(Context context) {
+      monsters = getBitmapFromAsset(context.getAssets(), "monsters.png");
+
+      holder = getHolder();
+      // holder.addCallback(this);
+
+      this.setOnTouchListener(this);
+    }
 
     public static Bitmap getBitmapFromAsset(AssetManager assetManager, String filePath) {
       InputStream istr;
@@ -80,7 +92,9 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
 
     @Override
     public void onDraw(Canvas canvas) {
-        monsterSprite.OnDraw(canvas);
+      super.onDraw(canvas);
+
+      monsterSprite.OnDraw(canvas);
     }
 
     public void pause() {
