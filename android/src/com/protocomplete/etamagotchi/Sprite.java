@@ -17,14 +17,14 @@ class Sprite {
     posX = posY = velX = velY = 0;
   }
 
-  public void OnDraw(Canvas canvas) {
-    Update();
+  public void onDraw(Canvas canvas) {
+    update();
     Rect surface = new Rect(0, 0, width, height);
     Rect output = new Rect(posX, posY, posX+width, posY+height);
     canvas.drawBitmap(source, surface, output, null);
   }
 
-  public void Update() {
+  public void update() {
     posX += velX;
     posY += velY;
   }
@@ -35,5 +35,13 @@ class Sprite {
 
   public void setVelY(int y) {
     velY = y;
+  }
+
+  public void setPosX(int x) {
+    posX = x;
+  }
+
+  public void setPosY(int y) {
+    posY = y;
   }
 }

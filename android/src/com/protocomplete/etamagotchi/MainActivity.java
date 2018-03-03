@@ -17,6 +17,9 @@ public class MainActivity extends Activity {
       // view = new RenderView(this);
 
       setContentView(R.layout.main);
+
+      view = (RenderView)findViewById(R.id.view);
+
       Log.d(msg, "The onCreate() event");
    }
 
@@ -31,7 +34,7 @@ public class MainActivity extends Activity {
    @Override
    protected void onResume() {
       super.onResume();
-      //view.resume();
+      view.onResume();
       Log.d(msg, "The onResume() event");
    }
 
@@ -39,7 +42,7 @@ public class MainActivity extends Activity {
    @Override
    protected void onPause() {
       super.onPause();
-      //view.pause();
+      view.onPause();
       Log.d(msg, "The onPause() event");
    }
 

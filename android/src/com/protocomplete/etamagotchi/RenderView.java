@@ -17,12 +17,13 @@ import android.graphics.Canvas;
 import android.os.Handler;
 import java.io.IOException;
 import java.io.InputStream;
+import android.util.Log;
 
-public class RenderView extends SurfaceView implements Runnable, OnTouchListener, Callback {
+public class RenderView extends SurfaceView implements Runnable, OnTouchListener {
     Thread viewThread = null;
-    SurfaceHolder holder = null;
+    SurfaceHolder holder;
     boolean isSpriteLoaded = false;
-    boolean isThreadActive = false;
+    boolean isThreadActive = true;
     Bitmap monsters;
     Sprite monsterSprite = null;
 
@@ -40,7 +41,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       init(context);
     }
 
-    @Override
+    /*@Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
       Canvas canvas = surfaceHolder.lockCanvas();
       draw(canvas);
@@ -56,13 +57,13 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     @Override
     public void surfaceChanged(SurfaceHolder surfaceHolder, int format, int width, int height) {
 
-    }
+    }*/
 
     public void init(Context context) {
       monsters = getBitmapFromAsset(context.getAssets(), "monsters.png");
 
       holder = getHolder();
-      holder.addCallback(this);
+      //holder.addCallback(this);
 
       this.setOnTouchListener(this);
     }
@@ -74,8 +75,10 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       try {
           istr = assetManager.open(filePath);
           bitmap = BitmapFactory.decodeStream(istr);
+          Log.d("Android: ", "WORKS FINE");
       } catch (IOException e) {
           // TODO: handle exception
+          Log.d("Android: ", "FUCKED UP");
           e.printStackTrace();
       }
 
@@ -89,14 +92,15 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
 
           if(!isSpriteLoaded && monsters != null) {
             monsterSprite = new Sprite(this, monsters);
-            monsterSprite.setVelX(2);
-            monsterSprite.setVelY(2);
             isSpriteLoaded = true;
           }
 
           Canvas canvas = holder.lockCanvas();
           onDraw(canvas);
           holder.unlockCanvasAndPost(canvas);
+          Log.d("Android:" , "GUESS EVERYTHING IS FINE");
+        } else {
+          Log.d("Android: ", "holder not valid!");
         }
       }
     }
@@ -106,42 +110,36 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       super.onDraw(canvas);
 
       if(isSpriteLoaded) {
-        monsterSprite.OnDraw(canvas);
+        monsterSprite.onDraw(canvas);
       }
     }
 
-    public void pause() {
+    public void onPause() {
       isThreadActive = false;
 
-      while(true) {
-        try {
-          viewThread.join();
-        } catch(InterruptedException e) {
-          e.printStackTrace();
-        }
-
-        break;
+      try {
+        viewThread.join();
+      } catch(InterruptedException e) {
+        e.printStackTrace();
       }
 
       viewThread = null;
     }
 
-    public void resume() {
+    public void onResume() {
       isThreadActive = true;
       viewThread = new Thread(this);
       viewThread.start();
     }
 
     public boolean onTouch(View v, MotionEvent me) {
-      //x=me.getX();//ontouch listener
-      //y=me.getY();
-
-      try {
-        Thread.sleep(80);
-      } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+      if(monsterSprite == null) {
+        return false;
       }
+
+      monsterSprite.setPosX((int)me.getX());
+      monsterSprite.setPosY((int)me.getY());
+
       switch(me.getAction()) {
         case MotionEvent.ACTION_DOWN:
           break;

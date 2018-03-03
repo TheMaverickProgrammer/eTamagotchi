@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="match_parent"
+	android:layout_height="match_parent"
 	android:background="@android:color/background_light">
 
   <com.protocomplete.etamagotchi.RenderView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="fill_parent" />
+    android:id="@+id/view"
+    android:layout_width="match_parent"
+    android:layout_height="500px"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"/>
 
 	<Button android:layout_height="wrap_content"
+      android:id="@+id/feedButton"
 			android:layout_width="match_parent"
 			android:layout_margin="2dip"
+      android:layout_below="@id/view"
 			android:text="Feed" />
 
-</LinearLayout>
+</RelativeLayout>
