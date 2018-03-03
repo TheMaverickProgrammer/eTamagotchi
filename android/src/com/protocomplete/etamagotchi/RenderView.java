@@ -67,13 +67,13 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       init(context);
     }
 
-    private Sprite getMonsterSpriteFromID(Bitmap source, int tileID) {
+    private Sprite getMonsterSpriteFromID(Bitmap source, int id) {
       // tiles are 16 x 16 pixels long
-      int row = (int) Math.floor((double)tileID / (double)NUM_COLS);
-      int col = tileID % (int) NUM_COLS;
+      int row = (int) Math.floor((double)id / (double)NUM_COLS);
+      int col = id % (int) NUM_COLS;
 
       return new Sprite(this, source, col*(int)TILE_WIDTH, row*(int)TILE_HEIGHT, (int)TILE_WIDTH, (int)TILE_HEIGHT);
-      //return new Sprite(this, source);
+      //return new Sprite(this, source, 48, 0, 48, 64);
     }
 
     public void feedMonster() {
@@ -116,6 +116,8 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
 
           if(!isSpriteLoaded && monsters != null && bg !=null) {
             monsterSprite = getMonsterSpriteFromID(monsters, tileID);
+            monsterSprite.setScale(2);
+
             bgSprite = new Sprite(this, bg);
 
             isSpriteLoaded = true;
@@ -153,8 +155,8 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
         }
 
         if(isSpriteLoaded) {
-          //monsterSprite.setPosX(0);
-          //monsterSprite.setPosY(0);
+          //monsterSprite.setPosX(xPos);
+          //monsterSprite.setPosY(getHeight()/2);
           monsterSprite.onDraw(canvas);
         }
       //}

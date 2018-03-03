@@ -8,6 +8,7 @@ import android.graphics.Paint;
 class Sprite {
   int posX, posY, velX, velY, height, width;
   int subX, subY, subW, subH;
+  int scale;
   Bitmap source;
   RenderView target;
 
@@ -20,6 +21,7 @@ class Sprite {
     subX = subY = 0;
     subW = width;
     subH = height;
+    scale = 1;
   }
 
   public Sprite(RenderView view, Bitmap bitmap, int subX, int subY, int subW, int subH) {
@@ -32,19 +34,20 @@ class Sprite {
     this.subY = subY;
     this.subW = subW;
     this.subH = subH;
+    scale = 1;
   }
 
   public void onDraw(Canvas canvas) {
     update();
-    Rect surface = new Rect(subX, subY, subW, subH);
-    Rect output = new Rect(posX, posY, posX+width, posY+height);
+    Rect surface = new Rect(subX, subY, subX+subW, subY+subH);
+    Rect output = new Rect(posX, posY, posX+(subW*scale), posY+(subH*scale));
     canvas.drawBitmap(source, surface, output, null);
   }
 
   public void onDraw(Canvas canvas, Paint paint) {
     update();
-    Rect surface = new Rect(subX, subY, subW, subH);
-    Rect output = new Rect(posX, posY, posX+subW, posY+subH);
+    Rect surface = new Rect(subX, subY, subX+subW, subY+subH);
+    Rect output = new Rect(posX, posY, posX+(subW*scale), posY+(subH*scale));
     canvas.drawBitmap(source, surface, output, paint);
   }
 
@@ -52,6 +55,10 @@ class Sprite {
   public void update() {
     posX += velX;
     posY += velY;
+  }
+
+  public void setScale(int scale) {
+    this.scale = scale;
   }
 
   public void setVelX(int x) {
