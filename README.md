@@ -8,7 +8,7 @@ MIT commercial free use - open source means you can take, edit, and contribute
 ## Language
 Android SDK is the development kit you'll be dealing with, and with source compatibility you'll use Java 6, 7 or 8.
 
-See whichone you have installed using `java -version`
+See which one you have installed using `java -version`
 
 On **Mac OS** you can see all installed java version using `/usr/libexec/java_home -V`
 
@@ -31,15 +31,15 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 1.6)
 
 ## Compiling
 
-### Desktop
+### Compiling On Desktop
 `javac eTamagotchi.java`
 
 `java eTamagotchi`
 
 Doesn't get any simpler than that
 
-### Android
-Follow [this tutorial](https://www.apriorit.com/dev-blog/233-how-to-build-apk-file-from-command-line) to install Android build tools.
+### Compiling On Android
+Follow [the first bit of this tutorial](https://www.apriorit.com/dev-blog/233-how-to-build-apk-file-from-command-line) to install Android build tools.
 
 For easier development, set your Environment variables. For unix based machines, edit the `.bash_profile` in your user's root directory. Include paths for JAVABIN, ANDROID_SDK/tools, and ANDROID_SDK/platform-tools.
 
@@ -52,6 +52,9 @@ export ANDROID_SDK=/Users/Maverick/Library/Android/sdk
 export PATH=${JAVABIN}:$ANDROID_SDK/tools:$ANDROID_SDK/platform-tools:$PATH
 ```
 
+**NOTE:** When building for an android target, your java and Android SDK (aka API Level) versions must be compatible with that android device. For example, my phone is Android 7.0 and only compatible with Android SDK 24 and earlier. Read more [here](https://en.wikipedia.org/wiki/Android_version_history).
+
+
 #### Signing an Android App
 Keystores are not included in the repo. You'll need to create your own keystore to sign the app [here](https://stuff.mit.edu/afs/sipb/project/android/docs/tools/building/building-cmdline.html). Keystores must reside in the same folder as your project.
 
@@ -61,6 +64,26 @@ From your terminal in the android folder, run the keygen command:
 `
 
 Remember to store your password somewhere or you can't sign your apps.
+
+#### Building the Android App
+
+I've written a build script that does a lot of the hand-holding for you. After creating the keystore file in the `keystore/` directory, replace the path, alias, and password in the `build.sh.template` file and rename it to `build.sh`. Change any other environment settings in the script before running. Then
+
+`sh buil.sh`
+
+If everything goes well and there are no compiler errors, the app's .apk file will spit out as `/bin/eTamagotchi.apk`.
+
+For further reading, see [this](https://www.hanshq.net/command-line-android.html) highly detailed article.
+
+#### Installing the Android App
+
+To install eTamagotchi.apk you must do a few things on your phone first. Since we're not verified by a 1st party app marketplace like Google Play, we have to enable developer settings on our phone before the app will be allowed on it.
+
+You need to enable USB debugging on the phone itself (by starting the Settings application and selecting **Applications > Development > USB Debugging**), install the Android USB device driver if you haven’t already (Windows only), and then plug the phone into your computer using the USB cable that came with the phone.
+
+Go to **Settings > Security > Unknown Sources** and toggle "Allow installation of apps from unknown sources".
+
+With the phone connected to your dev computer via USB, run `sh install_apk.sh` to install the app.
 
 ## Description
 Inspired by Digimon "Digivices" tamagotchis circa 1990's. A good foundation for a more advanced virtual tamagotchi or "learning" material.

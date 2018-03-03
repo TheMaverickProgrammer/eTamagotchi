@@ -1,19 +1,13 @@
 #!/usr/bin/env bash
 
-# Andriod SDK 27 build script by TheMaverickProgrammer
-# Tested on Mac OS 10.10.12
-# Mar 1 2018 
-
 ##################################################################
 #  PREPARE ENVIRONMENT
 ##################################################################
 path=$(pwd)
-rm -r bin
-rm -r gen
+rm -rf bin
+rm -rf gen
 mkdir bin
 mkdir gen
-KEYSTORE_PASS="PUT YOUR KEYSTORE PASSWORD HERE"
-KEYSTORE_ALIAS="PUT YOUR KEYSTORE ALIAS HERE"
 
 ##################################################################
 #  SET VARS
@@ -24,12 +18,11 @@ APP_NAME="eTamagotchi"
 
 # Define minimal Android revision
 ANDROID_REV="27.0.3"
-ANDROID_PLATFORM_REV="android-27"
+ANDROID_PLATFORM_REV="android-24"
 
 # Define Java compiler command
-JAVAC="${JAVA_BIN}/javac -classpath ${ANDROID_SDK}/platforms/${ANDROID_PLATFORM_REV}/android.jar"
+JAVAC="${JAVA_BIN}/javac -source 1.7 -target 1.7 -bootclasspath "${JAVA_HOME}/jre/lib/rt.jar" -classpath ${ANDROID_SDK}/platforms/${ANDROID_PLATFORM_REV}/android.jar"
 JAVAC_BUILD="${JAVAC} -sourcepath src -sourcepath gen -d bin"
-
 
 ##################################################################
 #  PROCESS
@@ -39,19 +32,18 @@ JAVAC_BUILD="${JAVAC} -sourcepath src -sourcepath gen -d bin"
 ${ANDROID_SDK}/build-tools/${ANDROID_REV}/aapt package -v -f -I ${ANDROID_SDK}/platforms/${ANDROID_PLATFORM_REV}/android.jar -M AndroidManifest.xml -A "assets" -S "res" -m -J "gen" -F bin/resources.ap_
 
 # Compile sources. All *.class files will be put into the bin folder
-${JAVAC_BUILD} src/com/protocomplete/etamagotchi/*.java
+${JAVAC_BUILD} src/com/protocomplete/etamagotchi/MainActivity.java
 
 # Generate dex files with compiled Java classes
 ${ANDROID_SDK}/build-tools/${ANDROID_REV}/dx --dex --output=${path}/bin/classes.dex ${path}/bin
 
-# Recources file need to be copied. This is needed for signing.
-mv "${path}/bin/resources.ap_" "${path}/bin/${APP_NAME}.ap_"
+${ANDROID_SDK}/build-tools/${ANDROID_REV}/aapt package -f -M AndroidManifest.xml -S res/ -I ${ANDROID_SDK}/platforms/${ANDROID_PLATFORM_REV}/android.jar -F bin/${APP_NAME}.unsigned.apk bin/
 
-# Add generated classes.dex file into application package
-${ANDROID_SDK}/build-tools/${ANDROID_REV}/aapt add ${path}/bin/${APP_NAME}.ap_ ${path}/bin/classes.dex
+${ANDROID_SDK}/build-tools/${ANDROID_REV}/zipalign -f -p 4 ${path}/bin/${APP_NAME}.unsigned.apk ${path}/bin/${APP_NAME}.aligned.apk
 
-# Create signed Android application from *.ap_ file. Output and Input files must be different.
-"${JAVA_BIN}/jarsigner" -keystore "${path}/keystore/etamagotchi-release-key.keystore" -storepass ${KEYSTORE_PASS} -keypass ${KEYSTORE_PASS} -signedjar ${path}/bin/${APP_NAME}.apk ${path}/bin/${APP_NAME}.ap_ ${KEYSTORE_ALIAS}
+# Create signed Android application 
+${ANDROID_SDK}/build-tools/${ANDROID_REV}/apksigner sign --ks ${path}/keystore/etamagotchi-release-key.keystore  --ks-key-alias "eTamagotchi" --out ${path}/bin/${APP_NAME}.apk ${path}/bin/${APP_NAME}.aligned.apk
 
 # Delete temp file
-rm "bin/${APP_NAME}.ap_"
+rm bin/*.ap_
+rm bin/*.dex
