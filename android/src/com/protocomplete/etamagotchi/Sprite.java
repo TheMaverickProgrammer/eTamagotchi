@@ -44,7 +44,7 @@ class Sprite {
   public void onDraw(Canvas canvas, Paint paint) {
     update();
     Rect surface = new Rect(subX, subY, subW, subH);
-    Rect output = new Rect(posX, posY, posX+width, posY+height);
+    Rect output = new Rect(posX, posY, posX+subW, posY+subH);
     canvas.drawBitmap(source, surface, output, paint);
   }
 

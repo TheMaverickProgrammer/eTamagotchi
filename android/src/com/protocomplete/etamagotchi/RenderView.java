@@ -72,8 +72,12 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       int row = (int) Math.floor((double)tileID / (double)NUM_COLS);
       int col = tileID % (int) NUM_COLS;
 
-      //return new Sprite(this, source, col*(int)TILE_WIDTH, row*(int)TILE_HEIGHT, (int)TILE_WIDTH, (int)TILE_HEIGHT);
-      return new Sprite(this, source);
+      return new Sprite(this, source, col*(int)TILE_WIDTH, row*(int)TILE_HEIGHT, (int)TILE_WIDTH, (int)TILE_HEIGHT);
+      //return new Sprite(this, source);
+    }
+
+    public void feedMonster() {
+      if(++HP > maxHP) { HP = maxHP; }
     }
 
     public void init(Context context) {
@@ -149,8 +153,8 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
         }
 
         if(isSpriteLoaded) {
-          monsterSprite.setPosX(0);
-          monsterSprite.setPosY(0);
+          //monsterSprite.setPosX(0);
+          //monsterSprite.setPosY(0);
           monsterSprite.onDraw(canvas);
         }
       //}
@@ -199,8 +203,8 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
         return false;
       }
 
-      //monsterSprite.setPosX((int)me.getX());
-      //monsterSprite.setPosY((int)me.getY());
+      monsterSprite.setPosX((int)me.getX());
+      monsterSprite.setPosY((int)me.getY());
 
       switch(me.getAction()) {
         case MotionEvent.ACTION_DOWN:

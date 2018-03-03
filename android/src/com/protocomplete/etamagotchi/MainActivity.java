@@ -2,6 +2,9 @@ package com.protocomplete.etamagotchi;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.widget.Button;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.util.Log;
 import com.protocomplete.etamagotchi.R;
 
@@ -20,6 +23,17 @@ public class MainActivity extends Activity {
       setContentView(R.layout.main);
 
       view = (RenderView)findViewById(R.id.view);
+
+      Button feedButton = (Button)findViewById(R.id.feedButton);
+
+      feedButton.setOnClickListener(
+        new OnClickListener() {
+          public void onClick(View v) {
+            // Code here executes on main thread after user presses button
+            view.feedMonster(); // TODO: Move this logic away from renderer
+          }
+        }
+      );
 
       Log.d(msg, "The onCreate() event");
    }
