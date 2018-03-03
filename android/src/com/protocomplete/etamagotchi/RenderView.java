@@ -7,6 +7,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
+import android.view.SurfaceHolder.Callback;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -14,15 +15,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.os.Handler;
-import android.os.Handler.Callback;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class RenderView extends SurfaceView implements Runnable, OnTouchListener {
+public class RenderView extends SurfaceView implements Runnable, OnTouchListener, Callback {
     Thread viewThread = null;
-    SurfaceHolder holder;
+    SurfaceHolder holder = null;
     boolean isSpriteLoaded = false;
-    boolean isThreadActive = true;
+    boolean isThreadActive = false;
     Bitmap monsters;
     Sprite monsterSprite = null;
 
@@ -40,17 +40,29 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       init(context);
     }
 
-    /*public void surfaceCreated(SurfaceHolder holder) {
-      Canvas canvas = holder.lockCanvas();
+    @Override
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+      Canvas canvas = surfaceHolder.lockCanvas();
       draw(canvas);
-      getHolder().unlockCanvasAndPost(canvas);
-    }*/
+      surfaceHolder.unlockCanvasAndPost(canvas);
+      isThreadActive = true;
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int format, int width, int height) {
+
+    }
 
     public void init(Context context) {
       monsters = getBitmapFromAsset(context.getAssets(), "monsters.png");
 
       holder = getHolder();
-      // holder.addCallback(this);
+      holder.addCallback(this);
 
       this.setOnTouchListener(this);
     }
@@ -73,20 +85,19 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     @Override
     public void run() {
       while(isThreadActive) {
-        if(!holder.getSurface().isValid()) {
-          continue;
-        }
+        if(holder.getSurface().isValid()) {
 
-        if(!isSpriteLoaded && monsters != null) {
-          monsterSprite = new Sprite(this, monsters);
-          monsterSprite.setVelX(2);
-          monsterSprite.setVelY(2);
-          isSpriteLoaded = true;
-        }
+          if(!isSpriteLoaded && monsters != null) {
+            monsterSprite = new Sprite(this, monsters);
+            monsterSprite.setVelX(2);
+            monsterSprite.setVelY(2);
+            isSpriteLoaded = true;
+          }
 
-        Canvas canvas = holder.lockCanvas();
-        onDraw(canvas);
-        holder.unlockCanvasAndPost(canvas);
+          Canvas canvas = holder.lockCanvas();
+          onDraw(canvas);
+          holder.unlockCanvasAndPost(canvas);
+        }
       }
     }
 
@@ -94,7 +105,9 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     public void onDraw(Canvas canvas) {
       super.onDraw(canvas);
 
-      monsterSprite.OnDraw(canvas);
+      if(isSpriteLoaded) {
+        monsterSprite.OnDraw(canvas);
+      }
     }
 
     public void pause() {

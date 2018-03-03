@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
    @Override
    protected void onResume() {
       super.onResume();
-      view.resume();
+      //view.resume();
       Log.d(msg, "The onResume() event");
    }
 
@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
    @Override
    protected void onPause() {
       super.onPause();
-      view.pause();
+      //view.pause();
       Log.d(msg, "The onPause() event");
    }
 
