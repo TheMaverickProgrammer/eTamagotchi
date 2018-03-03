@@ -39,7 +39,8 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 1.6)
 Doesn't get any simpler than that
 
 ### Compiling On Android
-![android](./screens/android.png)
+![app](./screens/android.png)
+![android-latest](./screens/android-latest.png)
 
 Follow [the first bit of this tutorial](https://www.apriorit.com/dev-blog/233-how-to-build-apk-file-from-command-line) to install Android build tools.
 
