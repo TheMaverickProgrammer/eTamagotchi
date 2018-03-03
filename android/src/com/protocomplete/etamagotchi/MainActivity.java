@@ -7,12 +7,18 @@ import com.protocomplete.etamagotchi.R;
 
 public class MainActivity extends Activity {
    String msg = "Android : ";
+   RenderView view;
 
    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.main);
+
+      view = new RenderView(this, null);
+
+      // setContentView(R.layout.main);
+      setContentView(view);
+
       Log.d(msg, "The onCreate() event");
    }
 
@@ -27,6 +33,7 @@ public class MainActivity extends Activity {
    @Override
    protected void onResume() {
       super.onResume();
+      view.resume();
       Log.d(msg, "The onResume() event");
    }
 
@@ -34,6 +41,7 @@ public class MainActivity extends Activity {
    @Override
    protected void onPause() {
       super.onPause();
+      view.pause();
       Log.d(msg, "The onPause() event");
    }
 
