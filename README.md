@@ -39,6 +39,8 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 1.6)
 Doesn't get any simpler than that
 
 ### Compiling On Android
+![android](./screens/android.png)
+
 Follow [the first bit of this tutorial](https://www.apriorit.com/dev-blog/233-how-to-build-apk-file-from-command-line) to install Android build tools.
 
 For easier development, set your Environment variables. For unix based machines, edit the `.bash_profile` in your user's root directory. Include paths for JAVABIN, ANDROID_SDK/tools, and ANDROID_SDK/platform-tools.
