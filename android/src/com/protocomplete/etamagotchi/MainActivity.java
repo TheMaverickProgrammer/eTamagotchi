@@ -30,7 +30,7 @@ public class MainActivity extends Activity {
         new OnClickListener() {
           public void onClick(View v) {
             // Code here executes on main thread after user presses button
-            view.feedMonster(); // TODO: Move this logic away from renderer
+            view.feedMonster();
           }
         }
       );
@@ -56,6 +56,7 @@ public class MainActivity extends Activity {
    /** Called when another activity is taking focus. */
    @Override
    protected void onPause() {
+      view.saveMonster();
       super.onPause();
       view.onPause();
       Log.d(msg, "The onPause() event");
@@ -64,14 +65,35 @@ public class MainActivity extends Activity {
    /** Called when the activity is no longer visible. */
    @Override
    protected void onStop() {
-      super.onStop();
-      Log.d(msg, "The onStop() event");
+     view.saveMonster();
+     super.onStop();
+     Log.d(msg, "The onStop() event");
    }
 
    /** Called just before the activity is destroyed. */
    @Override
    public void onDestroy() {
-      super.onDestroy();
-      Log.d(msg, "The onDestroy() event");
+     view.saveMonster();
+     super.onDestroy();
+     Log.d(msg, "The onDestroy() event");
    }
+
+   @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    setContentView(R.layout.main);
+
+    view = (RenderView)findViewById(R.id.view);
+
+    Button feedButton = (Button)findViewById(R.id.feedButton);
+
+    feedButton.setOnClickListener(
+      new OnClickListener() {
+        public void onClick(View v) {
+          // Code here executes on main thread after user presses button
+          view.feedMonster();
+        }
+      }
+    );
+  }
 }

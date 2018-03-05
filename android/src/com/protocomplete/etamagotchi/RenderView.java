@@ -28,6 +28,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     Thread viewThread = null;
     SurfaceHolder holder;
     boolean isThreadActive = true;
+    Context context = null;
 
     // Graphic loading stuff
     final double TILE_WIDTH = 480/10, TILE_HEIGHT = 384/6, NUM_COLS = 10, NUM_ROWS = 6;
@@ -36,7 +37,6 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     Bitmap bg;
     Sprite monsterSprite = null;
     Sprite bgSprite = null;
-    int tileID = (int) Math.floor(Math.random()*((int)NUM_COLS*NUM_ROWS));
     boolean isSpriteLoaded = false;
     Paint paint;
 
@@ -45,13 +45,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     BattleThread battleThread = null;
     boolean isInBattle = false;
 
-    // Monster Stuff
-    int HP = 1;
-    int maxHP = 6;
-    int maxDamage = ThreadLocalRandom.current().nextInt(1, 2 + 1); // min = 1, max = 2
-    int xpos = 0; // move around inbetween the frame
-    int wins = 0;
-    int losses = 0;
+    Monster monster;
 
     public RenderView(Context context) {
       super(context);
@@ -73,7 +67,6 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       int col = id % (int) NUM_COLS;
 
       return new Sprite(this, source, col*(int)TILE_WIDTH, row*(int)TILE_HEIGHT, (int)TILE_WIDTH, (int)TILE_HEIGHT);
-      //return new Sprite(this, source, 48, 0, 48, 64);
     }
 
     public void feedMonster() {
@@ -81,9 +74,14 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     }
 
     public void init(Context context) {
+      // Rendering setup
+      this.context = context;
+
+      // graphics
       monsters = getBitmapFromAsset(context.getAssets(), "monsters.png");
       bg = getBitmapFromAsset(context.getAssets(), "bg.jpg");
 
+      // callback
       holder = getHolder();
 
       paint = new Paint();
@@ -92,6 +90,22 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       paint.setStyle(Paint.Style.STROKE);
 
       this.setOnTouchListener(this);
+
+      // Monster setup
+      this.monster = MonsterReader.read(getFilesDir() + "digimon.xml");
+
+      if(this.monster == null) {
+        int tileID = (int) Math.floor(Math.random()*((int)NUM_COLS*NUM_ROWS));
+        int HP = 1;
+        int maxHP = 6;
+        int minDamage = 1;
+        int maxDamage = ThreadLocalRandom.current().nextInt(1, 3 + 1); // min = 1, max = 3
+        int xpos = 0; // move around inbetween the frame
+        int wins = 0;
+        int losses = 0;
+
+        this.monster = new Monster(tileID, HP, maxHP, minDamage, maxDamage, wins, losses);
+      }
     }
 
     public static Bitmap getBitmapFromAsset(AssetManager assetManager, String filePath) {
@@ -148,15 +162,16 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       }
 
       //if(!isInBattle) {
-        int xPos = getWidth();
+        int xPos = getWidth()/2;
         // make it move around I guess
         if(HP > 1) {
-          xPos += (int)(Math.sin(System.currentTimeMillis()*0.0002)*100.0);
+          xPos += (int)(Math.sin(System.currentTimeMillis()*0.0002)*getWidth()/4);
+          xPos -= (int)TILE_WIDTH/2;
         }
 
         if(isSpriteLoaded) {
-          //monsterSprite.setPosX(xPos);
-          //monsterSprite.setPosY(getHeight()/2);
+          monsterSprite.setPosX(xPos);
+          monsterSprite.setPosY(getHeight()/2);
           monsterSprite.onDraw(canvas);
         }
       //}
@@ -179,6 +194,12 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
         int top = 30;
         int bottom = top + 30;
         canvas.drawRect(left, top, right, bottom, paint);
+
+        /*try{
+          Thread.sleep(500);
+        }catch(IOException e) {
+          // Shouldnt happen...
+        }*/
       }
     }
 
@@ -200,13 +221,17 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       viewThread.start();
     }
 
+    public void saveMonster() {
+      MonsterWriter.write(this.monster, this.context.getFilesDir() + "digimon.xml");
+    }
+
     public boolean onTouch(View v, MotionEvent me) {
       if(monsterSprite == null) {
         return false;
       }
 
-      monsterSprite.setPosX((int)me.getX());
-      monsterSprite.setPosY((int)me.getY());
+      // monsterSprite.setPosX((int)me.getX());
+      // monsterSprite.setPosY((int)me.getY());
 
       switch(me.getAction()) {
         case MotionEvent.ACTION_DOWN:
