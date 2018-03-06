@@ -146,6 +146,8 @@ public class MonsterWriter {
       }
 
   		StreamResult result = new StreamResult(new File(file, path));
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
   		transformer.transform(source, result);
 
       // Saved!

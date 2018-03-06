@@ -60,8 +60,8 @@ public class MonsterReader {
       String v1 = "1.0";
       String version = doc.getDocumentElement().getAttribute("version");
 
-    	if(v1 != version) {
-        return null;
+    	if(!v1.equals(version)) {
+        throw new Exception("eTamagotchi version is " + version + " expecting " + v1);
       }
 
     	Node monster = doc.getElementsByTagName("Monster").item(0);

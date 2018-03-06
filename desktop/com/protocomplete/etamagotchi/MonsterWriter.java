@@ -9,6 +9,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.OutputKeys;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -146,6 +147,9 @@ public class MonsterWriter {
       }
 
   		StreamResult result = new StreamResult(new File(file, path));
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
   		transformer.transform(source, result);
 
       // Saved!
