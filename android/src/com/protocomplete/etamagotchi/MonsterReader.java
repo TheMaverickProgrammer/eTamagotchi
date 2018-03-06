@@ -40,9 +40,9 @@ XML Representation For version 1.0
 */
 
 public class MonsterReader {
-  public static Monster read(String path) {
+  public static Monster read(File dir, String path) {
     try {
-    	File fXmlFile = new File(path);
+    	File fXmlFile = new File(dir, "saves/digimon.xml");
     	DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     	DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
     	Document doc = dBuilder.parse(fXmlFile);
@@ -58,26 +58,26 @@ public class MonsterReader {
         return null;
       }
 
-    	Node monster = doc.getElementByTagName("Monster");
+    	Node monster = doc.getElementsByTagName("Monster").item(0);
 
       if (monster.getNodeType() == Node.ELEMENT_NODE) {
   			Element el = (Element) monster;
 
-  			int ID = Integer.toInt(el.getElementByTagName("ID").getTextContent());
-        String name = el.getElementByTagName("Name");
+  			int ID = Integer.parseInt(el.getElementsByTagName("ID").item(0).getTextContent());
+        String name = el.getElementsByTagName("Name").item(0).getTextContent();
 
-        Element stats = el.getElementByTagName("Stats");
-        Element health = stats.getElementByTagName("Health");
-        Element damage = stats.getElementByTagName("Damage");
-        Element p2p = el.getElementByTagName("P2P");
-        Element kdr = p2p.getElementByTagName("KDR");
+        Element stats = (Element) el.getElementsByTagName("Stats").item(0);
+        Element health = (Element) stats.getElementsByTagName("Health").item(0);
+        Element damage = (Element) stats.getElementsByTagName("Damage").item(0);
+        Element p2p = (Element) el.getElementsByTagName("P2P").item(0);
+        Element kdr = (Element) p2p.getElementsByTagName("KDR").item(0);
 
-        int hp = Integer.toInt(health.getElementByTagName("Current").getTextContent());
-        int maxHP = Integer.toInt(health.getElementByTagName("Max").getTextContent());
-        int minDmg = Integer.toInt(damage.getElementByTagName("Min").getTextContent());
-        int maxDmg = Integer.toInt(damage.getElementByTagName("Max").getTextContent());
-        int wins = Integer.toInt(kdr.getElementByTagName("Wins").getTextContent());
-        int losses = Integer.toInt(kdr.getElementByTagName("Losses").getTextContent());
+        int hp = Integer.parseInt(health.getElementsByTagName("Current").item(0).getTextContent());
+        int maxHP = Integer.parseInt(health.getElementsByTagName("Max").item(0).getTextContent());
+        int minDmg = Integer.parseInt(damage.getElementsByTagName("Min").item(0).getTextContent());
+        int maxDmg = Integer.parseInt(damage.getElementsByTagName("Max").item(0).getTextContent());
+        int wins = Integer.parseInt(kdr.getElementsByTagName("Wins").item(0).getTextContent());
+        int losses = Integer.parseInt(kdr.getElementsByTagName("Losses").item(0).getTextContent());
 
         // ... read in the rest of the xml data...
         // NOTE: could read in a list of special move sets, stat buffs, unique moods, ...

@@ -46,7 +46,7 @@ XML Representation For version 1.0
 
 public class MonsterWriter {
 
-	public static void write(Monster mon, String path) {
+	public static void write(Monster mon, File dir, String path) {
 	  try {
   		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
   		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -69,10 +69,10 @@ public class MonsterWriter {
       Element stats = doc.createElement("Stats");
       Element health = doc.createElement("Health");
       Element current = doc.createElement("Current");
-      current.appendChild(doc.createTextNode(mon.getHP()))
+      current.appendChild(doc.createTextNode(Integer.toString(mon.getHP())));
 
       Element maxhp = doc.createElement("Max");
-      maxhp.appendChild(doc.createTextNode(mon.getMaxHP()));
+      maxhp.appendChild(doc.createTextNode(Integer.toString(mon.getMaxHP())));
 
       // <Health>
       //  <Current>6</Current>
@@ -84,10 +84,10 @@ public class MonsterWriter {
   		// nickname elements
   		Element damage = doc.createElement("Damage");
       Element mindmg = doc.createElement("Min");
-      mindmg.appendChild(doc.createTextNode(mon.getMinDamage()));
+      mindmg.appendChild(doc.createTextNode(Integer.toString(mon.getMinDamage())));
 
       Element maxdmg = doc.createElement("Max");
-      maxdmg.appendChild(doc.createTextNode(mon.getMaxDamage()));
+      maxdmg.appendChild(doc.createTextNode(Integer.toString(mon.getMaxDamage())));
 
       // <Damage>
       //  <Min> 1 </Min>
@@ -103,10 +103,10 @@ public class MonsterWriter {
       Element kdr = doc.createElement("KDR");
 
       Element wins = doc.createElement("Wins");
-      wins.appendChild(doc.createTextNode(mon.getWins()));
+      wins.appendChild(doc.createTextNode(Integer.toString(mon.getWins())));
 
       Element losses = doc.createElement("Losses");
-      losses.appendChild(doc.createTextNode(mon.getLosses()));
+      losses.appendChild(doc.createTextNode(Integer.toString(mon.getLosses())));
 
       // <KDR>
       //  <Wins>5</Wins>
@@ -127,7 +127,14 @@ public class MonsterWriter {
   		TransformerFactory transformerFactory = TransformerFactory.newInstance();
   		Transformer transformer = transformerFactory.newTransformer();
   		DOMSource source = new DOMSource(doc);
-  		StreamResult result = new StreamResult(new File(path));
+
+      File file = new File(dir, "saves");
+
+      if(!file.exists()) {
+        file.mkdir();
+      }
+
+  		StreamResult result = new StreamResult(new File(file, path));
   		transformer.transform(source, result);
 
       // Saved!

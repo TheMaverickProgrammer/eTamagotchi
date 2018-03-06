@@ -32,8 +32,20 @@ public class Monster {
     return this.maxHP;
   }
 
-  public int calcDamage() {
+  public int getMinDamage() {
+    return this.minDamage;
+  }
 
+  public int getMaxDamage() {
+    return this.maxDamage;
+  }
+
+  public int getWins() {
+    return this.wins;
+  }
+
+  public int getLosses() {
+    return this.losses;
   }
 
   public void eat() {

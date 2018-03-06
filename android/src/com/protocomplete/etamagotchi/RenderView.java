@@ -45,7 +45,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     BattleThread battleThread = null;
     boolean isInBattle = false;
 
-    Monster monster;
+    Monster monster = null;
 
     public RenderView(Context context) {
       super(context);
@@ -70,7 +70,11 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     }
 
     public void feedMonster() {
-      if(++HP > maxHP) { HP = maxHP; }
+      if(monster == null) {
+        return;
+      }
+
+      monster.eat();
     }
 
     public void init(Context context) {
@@ -92,10 +96,11 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       this.setOnTouchListener(this);
 
       // Monster setup
-      this.monster = MonsterReader.read(getFilesDir() + "digimon.xml");
+      this.monster = MonsterReader.read(this.context.getFilesDir(), "digimon.xml");
 
       if(this.monster == null) {
         int tileID = (int) Math.floor(Math.random()*((int)NUM_COLS*NUM_ROWS));
+        String name = getMonsterNameFromID(tileID);
         int HP = 1;
         int maxHP = 6;
         int minDamage = 1;
@@ -104,8 +109,12 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
         int wins = 0;
         int losses = 0;
 
-        this.monster = new Monster(tileID, HP, maxHP, minDamage, maxDamage, wins, losses);
+        this.monster = new Monster(tileID, name, HP, maxHP, minDamage, maxDamage, wins, losses);
       }
+    }
+
+    public String getMonsterNameFromID(int ID) {
+      return new String("Digimon");
     }
 
     public static Bitmap getBitmapFromAsset(AssetManager assetManager, String filePath) {
@@ -129,7 +138,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
         if(holder.getSurface().isValid()) {
 
           if(!isSpriteLoaded && monsters != null && bg !=null) {
-            monsterSprite = getMonsterSpriteFromID(monsters, tileID);
+            monsterSprite = getMonsterSpriteFromID(monsters, monster.getID());
             monsterSprite.setScale(2);
 
             bgSprite = new Sprite(this, bg);
@@ -161,10 +170,14 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
         paint.setAlpha(255); // fully opaque
       }
 
+      if(monster == null) {
+        return;
+      }
+
       //if(!isInBattle) {
         int xPos = getWidth()/2;
         // make it move around I guess
-        if(HP > 1) {
+        if(monster.getHP() > 1) {
           xPos += (int)(Math.sin(System.currentTimeMillis()*0.0002)*getWidth()/4);
           xPos -= (int)TILE_WIDTH/2;
         }
@@ -176,14 +189,14 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
         }
       //}
 
-      if(HP > 1) {
+      if(monster.getHP() > 1) {
         paint.setColor(Color.BLACK);
       } else {
         paint.setColor(Color.RED);
       }
 
-      for(int i = 0; i < maxHP; i++) {
-        if(i < HP) {
+      for(int i = 0; i < monster.getMaxHP(); i++) {
+        if(i < monster.getHP()) {
           paint.setStyle(Paint.Style.FILL);
         } else {
           // empty blocks
@@ -222,14 +235,10 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     }
 
     public void saveMonster() {
-      MonsterWriter.write(this.monster, this.context.getFilesDir() + "digimon.xml");
+      MonsterWriter.write(this.monster, this.context.getFilesDir(), "digimon.xml");
     }
 
     public boolean onTouch(View v, MotionEvent me) {
-      if(monsterSprite == null) {
-        return false;
-      }
-
       // monsterSprite.setPosX((int)me.getX());
       // monsterSprite.setPosY((int)me.getY());
 

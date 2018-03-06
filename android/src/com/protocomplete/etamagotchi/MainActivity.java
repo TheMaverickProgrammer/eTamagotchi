@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.util.Log;
+import android.content.res.Configuration;
 import com.protocomplete.etamagotchi.R;
 
 public class MainActivity extends Activity {
@@ -78,9 +79,10 @@ public class MainActivity extends Activity {
      Log.d(msg, "The onDestroy() event");
    }
 
-   @Override
+  @Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
+
     setContentView(R.layout.main);
 
     view = (RenderView)findViewById(R.id.view);
