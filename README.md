@@ -1,4 +1,17 @@
 # eTamagotchi
+## Version
+### 1.2 - LATEST 3/6/2018
+* Both android and desktop builds are consistent structurally so that new features in one can be immediately added in the other.
+* Digimon data is persisted - close and come back to your friend later
+* Standardized eTamagotchi file store structure (version 1.0)
+* Encapsulated digimon `Monster` class abstracts away the digimon data to easily move it around between threads and ohter objects
+
+### 1.1
+* Android project files and working build on `android` branch
+
+### 1.0
+* Simple desktop tamagotchi proof-of-concept with P2P multiplayer action
+
 ## Author
 Maverick Peppers "TheMaverickProgrammer"
 
@@ -32,11 +45,12 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 1.6)
 ## Compiling
 
 ### Compiling On Desktop
-`javac eTamagotchi.java`
+Compiling on desktop has changed since the first desktop release. The folders have been reorganized to be structurally consistent across both desktop and android. Rename `build.sh.template` to `build.sh` and run `chmod +x build.sh && chmod +x run.sh`
 
-`java eTamagotchi`
+If everything goes well the desktop build and run scripts should be executable.
 
-Doesn't get any simpler than that
+`./build.sh` spits out a `eTamagotchi.jar` file
+`./run.sh` runs the main class file
 
 ### Compiling On Android
 ![appa](./screens/android.png)
