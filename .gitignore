@@ -3,4 +3,5 @@
 *.dex
 *.apk
 build.sh
-build.bat
+*.jar
+saves/

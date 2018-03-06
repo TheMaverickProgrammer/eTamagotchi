@@ -1,3 +1,5 @@
+package com.protocomplete.etamagotchi;
+
 /*
 
 "eTamagotchi"
@@ -49,12 +51,8 @@ public class eTamagotchi extends Thread {
     static BattleThread battleThread = null;
 
     // Monster Stuff
-    static int HP = 1;
-    static int maxHP = 6;
-    static int maxDamage = ThreadLocalRandom.current().nextInt(1, 2 + 1); // min = 1, max = 2
-    static int xpos = 0; // move around inbetween the frame
-    static int wins = 0;
-    static int losses = 0;
+    static Monster monster = null;
+    static BufferedImage myMonsterImage = null;
 
     private static BufferedImage getMonsterTileFromID(int tileID) {
       // tiles are 16 x 16 pixels long
@@ -85,11 +83,36 @@ public class eTamagotchi extends Thread {
     }
 
     private static void showStats() {
-      String content = "Digimon: ???\nHP : "
-                      + HP + "/" + maxHP
-                      + "\nATK: " + maxDamage
-                      + "\nKDR: " + wins + " / " + losses;
+      String content = "Digimon: " + monster.getName()
+                      + "\nHP : " + monster.getHP() + "/" + monster.getMaxHP()
+                      + "\nATK: " + monster.getMaxDamage()
+                      + "\nKDR: " + monster.getWins() + " / " + monster.getLosses();
       JOptionPane.showMessageDialog(null, content);
+    }
+
+    private static String getMonsterNameFromID(int ID) {
+      return new String("Digimon");
+    }
+
+    private static void saveMonster() {
+      try{
+        MonsterWriter.write(monster, new File("./"), "digimon.xml");
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    private static void loadMonster() {
+      try {
+        monster = MonsterReader.read(new File("./"), "digimon.xml");
+      } catch(Exception e) {
+        e.printStackTrace();
+        monster = null;
+      }
+    }
+
+    private static String getResource(String resource) {
+      return "com/protocomplete/etamagotchi/" + resource;
     }
 
     public static void main(String[] args) throws IOException {
@@ -111,25 +134,40 @@ public class eTamagotchi extends Thread {
         m1.add(m12);
         m1.add(m13);
         JMenuItem m21 = new JMenuItem("Stats");
-        JMenuItem m22 = new JMenuItem("Reset");
+        JMenuItem m22 = new JMenuItem("Save");
         m2.add(m21);
-        // m2.add(m22); NOTE: reset app not implemented
+        m2.add(m22);
 
         try {
-          tiles = ImageIO.read(new File("./monsters.png"));
-          hostImg = ImageIO.read(new File("./hosting.png"));
-          attackImg = ImageIO.read(new File("./attack.png"));
+          tiles = ImageIO.read(new File(eTamagotchi.getResource("monsters.png")));
+          hostImg = ImageIO.read(new File(eTamagotchi.getResource("hosting.png")));
+          attackImg = ImageIO.read(new File(eTamagotchi.getResource("attack.png")));
         } catch (Exception e) {
           // Not found, will try to throw an exception. Fail.
+          e.printStackTrace();
           return;
         }
 
-        // Choose a random monster and store it for network battles
-        // 16 cols x 12 rows
-        final int tileID = (int) Math.floor(Math.random()*((int)NUM_COLS*NUM_ROWS));
-        System.out.print("tileID: " + tileID + "\n");
+        // Monster setup
+        eTamagotchi.loadMonster();
 
-        final BufferedImage myMonster = getMonsterTileFromID(tileID);
+        if(monster == null) {
+          int tileID = (int) Math.floor(Math.random()*((int)NUM_COLS*NUM_ROWS));
+          String name = getMonsterNameFromID(tileID);
+          int HP = 1;
+          int maxHP = 6;
+          int minDamage = 1;
+          int maxDamage = ThreadLocalRandom.current().nextInt(1, 3 + 1); // min = 1, max = 3
+          int xpos = 0; // move around inbetween the frame
+          int wins = 0;
+          int losses = 0;
+
+          monster = new Monster(tileID, name, HP, maxHP, minDamage, maxDamage, wins, losses);
+          myMonsterImage = getMonsterTileFromID(monster.getID());
+
+        } else {
+          myMonsterImage = getMonsterTileFromID(monster.getID());
+        }
 
         //Creating the panel at bottom and adding components
         JPanel panel = new JPanel();
@@ -141,10 +179,7 @@ public class eTamagotchi extends Thread {
         // Make menu items and buttons do stuff
         ActionListener feedAction = new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-              HP++;
-              if(HP > maxHP) {
-                HP = maxHP;
-              }
+              monster.eat();
           }
         };
 
@@ -164,7 +199,7 @@ public class eTamagotchi extends Thread {
             // TODO: BattleThread connect
             // Finally start the battle thread in the background
             try {
-             battleThread = new BattleThread(IP, PORT, false, tileID, HP, maxDamage);
+             battleThread = new BattleThread(IP, PORT, false, monster.getID(), monster.getHP(), monster.getMaxDamage());
              battleThread.start();
            } catch (IOException ex) {
              ex.printStackTrace();
@@ -178,7 +213,7 @@ public class eTamagotchi extends Thread {
         ActionListener HostAction = new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             try {
-             battleThread = new BattleThread("", PORT, true, tileID, HP, maxDamage);
+             battleThread = new BattleThread("", PORT, true, monster.getID(), monster.getHP(), monster.getMaxDamage());
              battleThread.start();
             } catch (IOException ex) {
              ex.printStackTrace();
@@ -195,6 +230,14 @@ public class eTamagotchi extends Thread {
         };
 
         m21.addActionListener(StatsClickedAction);
+
+        ActionListener SaveClickedAction = new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            saveMonster();
+          }
+        };
+
+        m22.addActionListener(SaveClickedAction);
 
         // Drawable panel at the Center
         JPanel canvas = new JPanel() {
@@ -213,7 +256,7 @@ public class eTamagotchi extends Thread {
                   if(battleThread.isInBattle()) {
                       inBattle = true;
                       BufferedImage otherMonsterImg = getMonsterTileFromID(battleThread.getOtherTileID());
-                      g.drawImage(createFlipped(myMonster),
+                      g.drawImage(createFlipped(myMonsterImage),
                                 (super.getWidth()/2) - (int)(TILE_WIDTH/2) - 50,
                                 (super.getHeight()/2) - (int)(TILE_HEIGHT/2),
                                 null);
@@ -235,32 +278,40 @@ public class eTamagotchi extends Thread {
 
                   if(battleThread.isBattleOver()){
                     // update our stats post battle
-                    HP = battleThread.getAfterBattleHP();
-                    wins += battleThread.getWins();
-                    losses += battleThread.getLosses();
+                    monster.updateHP(battleThread.getAfterBattleHP());
+
+                    if(battleThread.getWins() > 0) {
+                      monster.victory();
+                    }
+
+                    if(battleThread.getLosses() > 0) {
+                      monster.defeat();
+                    }
                   }
                 }
 
                 if(!inBattle) {
                   // make it move around I guess
-                  if(HP > 1) {
+                  int xpos = 0;
+
+                  if(monster.getHP() > 1) {
                     xpos = (int)(Math.sin(System.currentTimeMillis()*0.0002)*100.0);
                   }
 
-                  g.drawImage(myMonster,
+                  g.drawImage(myMonsterImage,
                               (super.getWidth()/2) - (int)(TILE_WIDTH/2) - xpos,
                               (super.getHeight()/2) - (int)(TILE_HEIGHT/2),
                               null);
                 }
 
-                if(HP > 1) {
+                if(monster.getHP() > 1) {
                   g.setColor(Color.BLACK);
                 } else {
                   g.setColor(Color.RED);
                 }
 
-                for(int i = 0; i < maxHP; i++) {
-                  if(i < HP) {
+                for(int i = 0; i < monster.getMaxHP(); i++) {
+                  if(i < monster.getHP()) {
                     g.fillRect(10*(i+1)+(40*i), 10, 30, 30);
                   } else {
                     // empty blocks

@@ -43,6 +43,7 @@ public class MainActivity extends Activity {
    @Override
    protected void onStart() {
       super.onStart();
+      view.loadMonster();
       Log.d(msg, "The onStart() event");
    }
 
@@ -57,8 +58,8 @@ public class MainActivity extends Activity {
    /** Called when another activity is taking focus. */
    @Override
    protected void onPause() {
-      view.saveMonster();
       super.onPause();
+      view.saveMonster();
       view.onPause();
       Log.d(msg, "The onPause() event");
    }
@@ -66,16 +67,17 @@ public class MainActivity extends Activity {
    /** Called when the activity is no longer visible. */
    @Override
    protected void onStop() {
-     view.saveMonster();
-     super.onStop();
+      super.onStop();
+      view.saveMonster();
+
      Log.d(msg, "The onStop() event");
    }
 
    /** Called just before the activity is destroyed. */
    @Override
    public void onDestroy() {
-     view.saveMonster();
      super.onDestroy();
+     view.saveMonster();
      Log.d(msg, "The onDestroy() event");
    }
 
@@ -88,6 +90,8 @@ public class MainActivity extends Activity {
     view = (RenderView)findViewById(R.id.view);
 
     Button feedButton = (Button)findViewById(R.id.feedButton);
+
+    view.loadingMonster();
 
     feedButton.setOnClickListener(
       new OnClickListener() {

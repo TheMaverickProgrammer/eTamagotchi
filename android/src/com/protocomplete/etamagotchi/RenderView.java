@@ -96,7 +96,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       this.setOnTouchListener(this);
 
       // Monster setup
-      this.monster = MonsterReader.read(this.context.getFilesDir(), "digimon.xml");
+      loadMonster();
 
       if(this.monster == null) {
         int tileID = (int) Math.floor(Math.random()*((int)NUM_COLS*NUM_ROWS));
@@ -235,7 +235,20 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     }
 
     public void saveMonster() {
-      MonsterWriter.write(this.monster, this.context.getFilesDir(), "digimon.xml");
+      try{
+        MonsterWriter.write(this.monster, this.context.getFilesDir(), "digimon.xml");
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    public void loadMonster() {
+      try {
+        this.monster = MonsterReader.read(this.context.getFilesDir(), "digimon.xml");
+      } catch(Exception e) {
+        e.printStackTrace();
+        this.monster = null;
+      }
     }
 
     public boolean onTouch(View v, MotionEvent me) {

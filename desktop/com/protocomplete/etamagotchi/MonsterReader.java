@@ -7,6 +7,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
+import java.io.*; // DEBUG
 
 
 /***
@@ -43,12 +44,14 @@ public class MonsterReader {
   public static Monster read(File dir, String path) {
     try {
       File file = new File(dir, "saves");
+      System.out.print("reading file from: " + file.getPath() + "\n");
 
       if(!file.exists()) {
         file.mkdir();
       }
 
       File fXmlFile = new File(file, path);
+      System.out.print("reading file from: " + fXmlFile.getPath() + "\n");
 
     	DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     	DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
