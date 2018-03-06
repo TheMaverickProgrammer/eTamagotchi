@@ -42,14 +42,10 @@ XML Representation For version 1.0
 
 public class MonsterReader {
   public static Monster read(File dir, String path) {
+    System.out.print("reading file\n");
+
     try {
       File file = new File(dir, "saves");
-      System.out.print("reading file from: " + file.getPath() + "\n");
-
-      if(!file.exists()) {
-        file.mkdir();
-      }
-
       File fXmlFile = new File(file, path);
       System.out.print("reading file from: " + fXmlFile.getPath() + "\n");
 
@@ -99,6 +95,6 @@ public class MonsterReader {
     } catch (Exception e) {
       e.printStackTrace();
      return null;
-    }
-  }
+   }
+ }
 }

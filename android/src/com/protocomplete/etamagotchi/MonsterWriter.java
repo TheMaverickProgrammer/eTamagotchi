@@ -51,19 +51,28 @@ public class MonsterWriter {
   		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
   		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
-  		// root elements
+  		// root element <eTamagotchi version="x.x.x">
   		Document doc = docBuilder.newDocument();
-  		Element rootElement = doc.createElement("Monster");
+  		Element rootElement = doc.createElement("eTamagotchi");
       // set attribute to Monster element
-      Attr attr = doc.createAttribute("ID");
+      Attr attr = doc.createAttribute("version");
       attr.setValue("1.0");
       rootElement.setAttributeNode(attr);
   		doc.appendChild(rootElement);
 
+			// <Monster>
+			// 	<ID>23</ID>
+			Element monster = doc.createElement("Monster");
+			Element ID = doc.createElement("ID");
+			ID.appendChild(doc.createTextNode(Integer.toString(mon.getID())));
+			monster.appendChild(ID);
+			// </ID>
+
+
   		// <Name>Agumon</Name>
   		Element name = doc.createElement("Name");
   		name.appendChild(doc.createTextNode(mon.getName()));
-  		rootElement.appendChild(name);
+  		monster.appendChild(name);
 
   		// <Stats>
       Element stats = doc.createElement("Stats");
@@ -96,7 +105,7 @@ public class MonsterWriter {
       damage.appendChild(maxdmg); damage.appendChild(mindmg);
       stats.appendChild(damage);
       // </Stats>
-      rootElement.appendChild(stats);
+      monster.appendChild(stats);
 
       //<P2P>
       Element p2p = doc.createElement("P2P");
@@ -120,15 +129,17 @@ public class MonsterWriter {
       p2p.appendChild(history);
 
       // </P2P>
-      rootElement.appendChild(p2p);
+      monster.appendChild(p2p);
       // </Monster>
+			rootElement.appendChild(monster);
+			// </eTamagotchi>
 
   		// write the content into xml file
   		TransformerFactory transformerFactory = TransformerFactory.newInstance();
   		Transformer transformer = transformerFactory.newTransformer();
   		DOMSource source = new DOMSource(doc);
 
-      File file = new File(dir, "saves");
+      File file = new File(dir, "saves"); // overwrite
 
       if(!file.exists()) {
         file.mkdir();

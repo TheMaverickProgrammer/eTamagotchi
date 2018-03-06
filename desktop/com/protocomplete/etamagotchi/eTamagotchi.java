@@ -36,6 +36,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.*; // DEBUG
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -105,6 +106,10 @@ public class eTamagotchi extends Thread {
     private static void loadMonster() {
       try {
         monster = MonsterReader.read(new File("./"), "digimon.xml");
+
+        if(monster == null) {
+          System.out.print("Monsteer could not be read");
+        }
       } catch(Exception e) {
         e.printStackTrace();
         monster = null;
