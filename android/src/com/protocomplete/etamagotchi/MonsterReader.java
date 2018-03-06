@@ -7,6 +7,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
+import java.io.*; // DEBUG
 
 
 /***
@@ -41,14 +42,12 @@ XML Representation For version 1.0
 
 public class MonsterReader {
   public static Monster read(File dir, String path) {
+    System.out.print("reading file\n");
+
     try {
       File file = new File(dir, "saves");
-
-      if(!file.exists()) {
-        file.mkdir();
-      }
-
       File fXmlFile = new File(file, path);
+      System.out.print("reading file from: " + fXmlFile.getPath() + "\n");
 
     	DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     	DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -61,8 +60,8 @@ public class MonsterReader {
       String v1 = "1.0";
       String version = doc.getDocumentElement().getAttribute("version");
 
-    	if(v1 != version) {
-        return null;
+    	if(!v1.equals(version)) {
+        throw new Exception("eTamagotchi version is " + version + " expecting " + v1);
       }
 
     	Node monster = doc.getElementsByTagName("Monster").item(0);
@@ -96,6 +95,6 @@ public class MonsterReader {
     } catch (Exception e) {
       e.printStackTrace();
      return null;
-    }
-  }
+   }
+ }
 }

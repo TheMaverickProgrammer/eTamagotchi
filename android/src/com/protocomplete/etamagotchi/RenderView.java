@@ -137,7 +137,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       while(isThreadActive) {
         if(holder.getSurface().isValid()) {
 
-          if(!isSpriteLoaded && monsters != null && bg !=null) {
+          if(!isSpriteLoaded && monster != null && monsters != null && bg !=null) {
             monsterSprite = getMonsterSpriteFromID(monsters, monster.getID());
             monsterSprite.setScale(2);
 
@@ -168,10 +168,6 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
         paint.setAlpha(25); // barely visible
         bgSprite.onDraw(canvas, paint);
         paint.setAlpha(255); // fully opaque
-      }
-
-      if(monster == null) {
-        return;
       }
 
       //if(!isInBattle) {
