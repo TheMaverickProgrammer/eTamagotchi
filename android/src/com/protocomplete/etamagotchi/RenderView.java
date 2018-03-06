@@ -96,7 +96,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       this.setOnTouchListener(this);
 
       // Monster setup
-      this.monster = MonsterReader.read(this.context.getFilesDir(), "digimon.xml");
+      loadMonster();
 
       if(this.monster == null) {
         int tileID = (int) Math.floor(Math.random()*((int)NUM_COLS*NUM_ROWS));
@@ -137,7 +137,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       while(isThreadActive) {
         if(holder.getSurface().isValid()) {
 
-          if(!isSpriteLoaded && monsters != null && bg !=null) {
+          if(!isSpriteLoaded && monster != null && monsters != null && bg !=null) {
             monsterSprite = getMonsterSpriteFromID(monsters, monster.getID());
             monsterSprite.setScale(2);
 
@@ -168,10 +168,6 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
         paint.setAlpha(25); // barely visible
         bgSprite.onDraw(canvas, paint);
         paint.setAlpha(255); // fully opaque
-      }
-
-      if(monster == null) {
-        return;
       }
 
       //if(!isInBattle) {
@@ -235,7 +231,20 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     }
 
     public void saveMonster() {
-      MonsterWriter.write(this.monster, this.context.getFilesDir(), "digimon.xml");
+      try{
+        MonsterWriter.write(this.monster, this.context.getFilesDir(), "digimon.xml");
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    public void loadMonster() {
+      try {
+        this.monster = MonsterReader.read(this.context.getFilesDir(), "digimon.xml");
+      } catch(Exception e) {
+        e.printStackTrace();
+        this.monster = null;
+      }
     }
 
     public boolean onTouch(View v, MotionEvent me) {

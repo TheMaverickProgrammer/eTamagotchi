@@ -43,43 +43,44 @@ public class MainActivity extends Activity {
    @Override
    protected void onStart() {
       super.onStart();
+    //  view.loadMonster();
       Log.d(msg, "The onStart() event");
    }
 
    /** Called when the activity has become visible. */
    @Override
    protected void onResume() {
-      super.onResume();
-      view.onResume();
-      Log.d(msg, "The onResume() event");
+    super.onResume();
+    view.onResume();
+    Log.d(msg, "The onResume() event");
    }
 
    /** Called when another activity is taking focus. */
    @Override
    protected void onPause() {
-      view.saveMonster();
-      super.onPause();
-      view.onPause();
-      Log.d(msg, "The onPause() event");
+    super.onPause();
+    view.saveMonster();
+    view.onPause();
+    Log.d(msg, "The onPause() event");
    }
 
    /** Called when the activity is no longer visible. */
    @Override
    protected void onStop() {
-     view.saveMonster();
-     super.onStop();
-     Log.d(msg, "The onStop() event");
+    super.onStop();
+    view.saveMonster();
+    Log.d(msg, "The onStop() event");
    }
 
    /** Called just before the activity is destroyed. */
    @Override
    public void onDestroy() {
-     view.saveMonster();
-     super.onDestroy();
-     Log.d(msg, "The onDestroy() event");
+    super.onDestroy();
+    view.saveMonster();
+    Log.d(msg, "The onDestroy() event");
    }
 
-  @Override
+  /*@Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
 
@@ -89,6 +90,8 @@ public class MainActivity extends Activity {
 
     Button feedButton = (Button)findViewById(R.id.feedButton);
 
+    // view.loadMonster();
+
     feedButton.setOnClickListener(
       new OnClickListener() {
         public void onClick(View v) {
@@ -97,5 +100,5 @@ public class MainActivity extends Activity {
         }
       }
     );
-  }
+  }*/
 }

@@ -1,3 +1,5 @@
+package com.protocomplete.etamagotchi;
+
 /*
 
 "eTamagotchi"
