@@ -13,6 +13,26 @@ public class MainActivity extends Activity {
    String msg = "Android : ";
    RenderView view;
 
+   /** Special class implementations */
+   public String getLocalIpAddress(){
+      try {
+        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+          NetworkInterface intf = en.nextElement();
+
+          for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+
+            InetAddress inetAddress = enumIpAddr.nextElement();
+            if (!inetAddress.isLoopbackAddress()) {
+              return inetAddress.getHostAddress();
+            }
+          }
+        }
+      } catch (Exception ex) {
+         Log.e("IP Address", ex.toString());
+     }
+
+     return null;
+   }
 
    /** Called when the activity is first created. */
    @Override
@@ -35,6 +55,71 @@ public class MainActivity extends Activity {
           }
         }
       );
+
+      Button battleButton = (Button)findViewById(R.id.battleButton);
+
+      battleButton.setOnClickListener(
+        new OnClickListener() {
+          public void onClick(View v) {
+            // Let the user choose to host or join and delegate that
+            CharSequence battleTypes[] = new CharSequence[] {"Host", "Join", "Train"};
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Choose Battle");
+            builder.setItems(battleTypes, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // the user clicked on builder[which]
+                    if(builder[which].equals("Host")) {
+                      // Toast the IP address...
+                      Context context = getApplicationContext();
+                      // insert at 0 == prepend a string
+                      String text = getLocalIpAddress().instert(0, "Monster location is ");
+                      int duration = Toast.LENGTH_SHORT;
+
+                      Toast toast = Toast.makeText(context, (CharSequence)text, duration);
+                      toast.show();
+
+                      view.hostBattle();
+                    } else if(builder[which].equals("Join")) {
+                      // Request an IP address...
+
+                      AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                      builder.setTitle("Join a P2P battle");
+
+                      // Set up the input
+                      final EditText input = new EditText(this);
+                      // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                      input.setInputType(InputType.TYPE_CLASS_TEXT);
+                      builder.setView(input);
+
+                      // Set up the buttons
+                      builder.setPositiveButton("FIGHT!", new DialogInterface.OnClickListener() {
+                          @Override
+                          public void onClick(DialogInterface dialog, int which) {
+                              String ip = input.getText().toString();
+                              view.joinBattle(ip);
+                          }
+                      });
+                      builder.setNegativeButton("Nope", new DialogInterface.OnClickListener() {
+                          @Override
+                          public void onClick(DialogInterface dialog, int which) {
+                              dialog.cancel();
+                          }
+                      });
+
+                      builder.show();
+
+                    } else if(builder[which].equals("Train")) {
+                      // Do training...
+                      view.train();
+                    }
+                }
+            });
+            builder.show();
+          }
+        }
+      )
 
       Log.d(msg, "The onCreate() event");
    }
@@ -75,8 +160,8 @@ public class MainActivity extends Activity {
    /** Called just before the activity is destroyed. */
    @Override
    public void onDestroy() {
-    super.onDestroy();
     view.saveMonster();
+    super.onDestroy();
     Log.d(msg, "The onDestroy() event");
    }
 

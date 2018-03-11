@@ -77,6 +77,18 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       monster.eat();
     }
 
+    public void hostBattle() {
+
+    }
+
+    public void joinBattle(String ip) {
+
+    }
+
+    public void train() {
+      
+    }
+
     public void init(Context context) {
       // Rendering setup
       this.context = context;
