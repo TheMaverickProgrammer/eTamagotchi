@@ -1,6 +1,12 @@
 # eTamagotchi
 ## Version
-### 1.2 - LATEST 3/6/2018
+
+### 1.3 - LATEST 3/11/2018
+* Android build now hosts and joins battles
+* Don't have android? Battle from PC! - P2P Battles tested across phone and desktop apps
+* New android landscape layout
+
+### 1.2
 * Both android and desktop builds are consistent structurally so that new features in one can be immediately added in the other.
 * Digimon data is persisted - close and come back to your friend later
 * Standardized eTamagotchi file store structure (version 1.0)
@@ -26,12 +32,16 @@ Inspired by Digimon "Digivices" tamagotchis circa 1990's. A good foundation for 
 
 * eTamagotchi runs as both a host (timeout=60 seconds) and a client depending on the menu item selected.
 ![menu](./screens/menu.png)
+![android-menu](./screens/android-menu.png)
 
 * The digimon moves side to side when healthy (HP > 1)
 ![after-battle](./screens/after-battle.png)
+![android-landscape](./screens/android-landscape.png)
 
 * P2P battles.
 ![P2P](./screens/P2P.png)
+![android-host](./screens/android-host.png)
+![android-P2P](./screens/android-P2P.png)
 
 * Battles are computed similarly to the originals: one of the devices
 decides who would win before the effects took place on screen. The battles were simulated.
@@ -39,6 +49,7 @@ For eTamagotchi, the Host requests stat data from the Client and simulates
 a battle by reducing each monsters stats by eachother's attack power at the same time.
 Whoever has the most before K.O. wins. The client is updated with HP from the resulting battle.
 ![combat](./screens/combat.png)
+![android-combat](./screens/android-combat.png)
 
 * View stats from toolbar
 ![stats](./screens/stats.png)
@@ -48,23 +59,24 @@ Lots of it. I hacked this together in 8 hours.
 
 ## Code Improvement
 * The logic is in the main thread which happens to be the render loop. Bad.
-Decouple the rendering from the main thread. (dekstop)
+Decouple the rendering from the main thread.
 
 * ~~Create a Monster class that represents the stats, tileID, and pass that back
-and forth the BattleThread and the Render instances instead of how I'm doing it.
+and forth the BattleThread and the Render instances instead of how I'm doing it.~~
 
 * Divide the BattleThread into two different classes HostBattleThread and ClientBattleThread.
 
 * Too many battle flags managing the thread states... speaking of threads...
 
-* It's fine in Java ~~Unsure of the thread saftey. Each time a host or client is established a new thread is made. This can't be good.
+* It's fine in Java ~~Unsure of the thread saftey. Each time a host or client is established a new thread is made. This can't be good.~~
 
-* Creating new graphics each render call in P2P for opponent has to go (desktop)
+* Creating new graphics each render call in P2P for opponent has to go
 
 ## Gameplay Improvement
+### Things you can contribute
 * Read from a source (database) the correct digimon names, stats, etc...
 
-* ~~Save the tamagotchi state data to a file and load
+* ~~Save the tamagotchi state data to a file and load~~
 
 * Reward battling monsters with EXP points (e.g. winners +3 EXP, losers +1 EXP)
 
