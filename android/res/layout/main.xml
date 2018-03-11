@@ -20,11 +20,12 @@
 			android:layout_margin="2dip"
       android:layout_below="@id/view"
 			android:text="Feed" />
+
 	<Button android:layout_height="wrap_content"
       android:id="@+id/battleButton"
 			android:layout_width="match_parent"
 			android:layout_margin="2dip"
-      android:layout_below="@id/view"
+      android:layout_below="@id/feedButton"
 			android:text="Battle" />
 
 </RelativeLayout>

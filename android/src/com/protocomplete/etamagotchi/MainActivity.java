@@ -2,11 +2,21 @@ package com.protocomplete.etamagotchi;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.widget.Button;
+import android.widget.Toast;
+import android.widget.EditText;
+import android.content.Context;
 import android.view.View;
+import android.text.InputType;
 import android.view.View.OnClickListener;
 import android.util.Log;
 import android.content.res.Configuration;
+import android.content.DialogInterface;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 import com.protocomplete.etamagotchi.R;
 
 public class MainActivity extends Activity {
@@ -62,33 +72,33 @@ public class MainActivity extends Activity {
         new OnClickListener() {
           public void onClick(View v) {
             // Let the user choose to host or join and delegate that
-            CharSequence battleTypes[] = new CharSequence[] {"Host", "Join", "Train"};
+            final CharSequence battleTypes[] = new CharSequence[] {"Host", "Join", "Train"};
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setTitle("Choose Battle");
             builder.setItems(battleTypes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     // the user clicked on builder[which]
-                    if(builder[which].equals("Host")) {
+                    if(battleTypes[which].equals("Host")) {
                       // Toast the IP address...
-                      Context context = getApplicationContext();
+
                       // insert at 0 == prepend a string
-                      String text = getLocalIpAddress().instert(0, "Monster location is ");
+                      String text = "Monster location is " + getLocalIpAddress();
                       int duration = Toast.LENGTH_SHORT;
 
-                      Toast toast = Toast.makeText(context, (CharSequence)text, duration);
+                      Toast toast = Toast.makeText(MainActivity.this, (CharSequence)text, duration);
                       toast.show();
 
                       view.hostBattle();
-                    } else if(builder[which].equals("Join")) {
+                    } else if(battleTypes[which].equals("Join")) {
                       // Request an IP address...
 
-                      AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                      AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                       builder.setTitle("Join a P2P battle");
 
                       // Set up the input
-                      final EditText input = new EditText(this);
+                      final EditText input = new EditText(MainActivity.this);
                       // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
                       input.setInputType(InputType.TYPE_CLASS_TEXT);
                       builder.setView(input);
@@ -110,7 +120,7 @@ public class MainActivity extends Activity {
 
                       builder.show();
 
-                    } else if(builder[which].equals("Train")) {
+                    } else if(battleTypes[which].equals("Train")) {
                       // Do training...
                       view.train();
                     }
@@ -119,7 +129,7 @@ public class MainActivity extends Activity {
             builder.show();
           }
         }
-      )
+      );
 
       Log.d(msg, "The onCreate() event");
    }
