@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.Paint;
+import android.graphics.Matrix;
 
 class Sprite {
   int posX, posY, velX, velY, height, width;
@@ -75,5 +76,21 @@ class Sprite {
 
   public void setPosY(int y) {
     posY = y;
+  }
+
+  public Sprite flipX() {
+    Matrix matrix = new Matrix();
+    matrix.preScale(-1.0f, 1.0f);
+    Sprite flipped = new Sprite(target, Bitmap.createBitmap(source, subX, subY, subW, subH, matrix, true));
+    flipped.setScale(this.scale);
+    return flipped;
+  }
+
+  public Sprite flipY() {
+    Matrix matrix = new Matrix();
+    matrix.preScale(1.0f, -1.0f);
+    Sprite flipped = new Sprite(target, Bitmap.createBitmap(source, subX, subY, subW, subH, matrix, true));
+    flipped.setScale(this.scale);
+    return flipped;
   }
 }

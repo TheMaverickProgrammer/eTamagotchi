@@ -22,6 +22,7 @@ import android.util.AttributeSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 public class RenderView extends SurfaceView implements Runnable, OnTouchListener {
     // Process & Activity stuff
@@ -32,19 +33,21 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
 
     // Graphic loading stuff
     final double TILE_WIDTH = 480/10, TILE_HEIGHT = 384/6, NUM_COLS = 10, NUM_ROWS = 6;
-    Bitmap tiles = null, attackImg = null, hostImg = null;
+    Bitmap tiles = null;
+    Bitmap attackIcon;
     Bitmap monsters;
+    Bitmap hostIcon;
     Bitmap bg;
     Sprite monsterSprite = null;
     Sprite bgSprite = null;
+    Sprite hostSprite = null;
+    Sprite attackSprite = null;
     boolean isSpriteLoaded = false;
     Paint paint;
 
     // P2P
     final String PORT = "9999"; // if hosting, this is the port to use
     BattleThread battleThread = null;
-    boolean isInBattle = false;
-
     Monster monster = null;
 
     public RenderView(Context context) {
@@ -78,15 +81,25 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     }
 
     public void hostBattle() {
-
+      try {
+       battleThread = new BattleThread("", this.PORT, true, monster.getID(), monster.getHP(), monster.getMaxDamage());
+       battleThread.start();
+      } catch (IOException ex) {
+       ex.printStackTrace();
+      }
     }
 
     public void joinBattle(String ip) {
-
+      try {
+       battleThread = new BattleThread(ip, this.PORT, false, monster.getID(), monster.getHP(), monster.getMaxDamage());
+       battleThread.start();
+     } catch (IOException ex) {
+       ex.printStackTrace();
+     }
     }
 
     public void train() {
-      
+
     }
 
     public void init(Context context) {
@@ -96,6 +109,8 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       // graphics
       monsters = getBitmapFromAsset(context.getAssets(), "monsters.png");
       bg = getBitmapFromAsset(context.getAssets(), "bg.jpg");
+      hostIcon = getBitmapFromAsset(context.getAssets(), "hosting.png");
+      attackIcon = getBitmapFromAsset(context.getAssets(), "attack.png");
 
       // callback
       holder = getHolder();
@@ -149,11 +164,18 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       while(isThreadActive) {
         if(holder.getSurface().isValid()) {
 
-          if(!isSpriteLoaded && monster != null && monsters != null && bg !=null) {
+          if(!isSpriteLoaded && monster != null && monsters != null && bg !=null && hostIcon != null && attackIcon != null) {
             monsterSprite = getMonsterSpriteFromID(monsters, monster.getID());
             monsterSprite.setScale(2);
 
             bgSprite = new Sprite(this, bg);
+
+            hostSprite = new Sprite(this, hostIcon);
+            hostSprite.setPosX((int)this.getWidth() - 50);
+            hostSprite.setPosY((int)this.getHeight() - 50);
+
+            attackSprite = new Sprite(this, attackIcon);
+            attackSprite.setScale(2);
 
             isSpriteLoaded = true;
           }
@@ -182,7 +204,54 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
         paint.setAlpha(255); // fully opaque
       }
 
-      //if(!isInBattle) {
+      boolean inBattle = false;
+
+      if(battleThread != null) {
+        if(battleThread.getIsHosting()) {
+          hostSprite.onDraw(canvas);
+        }
+
+        if(battleThread.isInBattle()) {
+            inBattle = true;
+
+            // flip sprite
+            Sprite flippedMonsterSprite = monsterSprite.flipX();
+            flippedMonsterSprite.setPosX(this.getWidth()/2 - ((int)(TILE_WIDTH/2) + 100));
+            flippedMonsterSprite.setPosY(this.getHeight()/2 - (int)(TILE_HEIGHT/2));
+
+            Sprite otherMonster = getMonsterSpriteFromID(monsters, battleThread.getOtherTileID());
+            otherMonster.setScale(2);
+            otherMonster.setPosX(this.getWidth()/2 - ((int)(TILE_WIDTH/2) - 100));
+            otherMonster.setPosY(this.getHeight()/2 - (int)(TILE_HEIGHT/2));
+
+            flippedMonsterSprite.onDraw(canvas);
+            otherMonster.onDraw(canvas);
+
+            // randomly add attack effects
+            int rand = ThreadLocalRandom.current().nextInt(0, 2 + 1);
+
+            for(int i = 0; i < rand; i++) {
+              attackSprite.setPosX((int)((double)Math.random()*(((double)this.getWidth()/2.0)+30.0)));
+              attackSprite.setPosY((this.getHeight()/2) - (int)(Math.random()*(40.0/2.0)));
+              attackSprite.onDraw(canvas);
+            }
+        }
+
+        if(battleThread.isBattleOver()){
+          // update our stats post battle
+          monster.updateHP(battleThread.getAfterBattleHP());
+
+          if(battleThread.getWins() > 0) {
+            monster.victory();
+          }
+
+          if(battleThread.getLosses() > 0) {
+            monster.defeat();
+          }
+        }
+      }
+
+      if(!inBattle) {
         int xPos = getWidth()/2;
         // make it move around I guess
         if(monster.getHP() > 1) {
@@ -195,32 +264,33 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
           monsterSprite.setPosY(getHeight()/2);
           monsterSprite.onDraw(canvas);
         }
-      //}
 
-      if(monster.getHP() > 1) {
-        paint.setColor(Color.BLACK);
-      } else {
-        paint.setColor(Color.RED);
+        if(monster.getHP() > 1) {
+          paint.setColor(Color.BLACK);
+        } else {
+          paint.setColor(Color.RED);
+        }
+
+        for(int i = 0; i < monster.getMaxHP(); i++) {
+          if(i < monster.getHP()) {
+            paint.setStyle(Paint.Style.FILL);
+          } else {
+            // empty blocks
+            paint.setStyle(Paint.Style.STROKE);
+          }
+          int left = 10*(i+1)+(40*i);
+          int right = left + 30;
+          int top = 30;
+          int bottom = top + 30;
+          canvas.drawRect(left, top, right, bottom, paint);
+        }
       }
 
-      for(int i = 0; i < monster.getMaxHP(); i++) {
-        if(i < monster.getHP()) {
-          paint.setStyle(Paint.Style.FILL);
-        } else {
-          // empty blocks
-          paint.setStyle(Paint.Style.STROKE);
-        }
-        int left = 10*(i+1)+(40*i);
-        int right = left + 30;
-        int top = 30;
-        int bottom = top + 30;
-        canvas.drawRect(left, top, right, bottom, paint);
-
-        /*try{
-          Thread.sleep(500);
-        }catch(IOException e) {
-          // Shouldnt happen...
-        }*/
+      try{
+        // give it that blocky 8bit movement
+        Thread.sleep(500);
+      }catch(InterruptedException e) {
+        // Shouldnt happen...
       }
     }
 

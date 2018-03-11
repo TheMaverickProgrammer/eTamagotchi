@@ -85,7 +85,7 @@ public class MainActivity extends Activity {
 
                       // insert at 0 == prepend a string
                       String text = "Monster location is " + getLocalIpAddress();
-                      int duration = Toast.LENGTH_SHORT;
+                      int duration = 40*1000; //Toast.LENGTH_SHORT;
 
                       Toast toast = Toast.makeText(MainActivity.this, (CharSequence)text, duration);
                       toast.show();
