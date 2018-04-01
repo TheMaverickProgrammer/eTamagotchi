@@ -1,6 +1,8 @@
 package com.protocomplete.etamagotchi;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.text.ParseException;
 
 public class Monster {
   int ID, hp, maxHP, minDamage, maxDamage;
@@ -34,20 +36,23 @@ public class Monster {
     // Convert birthday string into timestamp
     try {
       Long millis = new SimpleDateFormat("MM/dd/yyyy").parse(this.birthday).getTime();
+
+      // Get system clock time now
+      Long now = new Date().getTime();
+
+      // Find the difference
+      Long diff = now - millis;
+
+      // Convert into days
+      int days = (int)(diff / 1000 / 60 / 60 / 24);
+
+      return days;
+
     } catch (ParseException e) {
       e.printStackTrace();
     }
 
-    // Get system clock time now
-    Long now = Date.getTime();
-
-    // Find the difference
-    Long diff = now - millis;
-
-    // Convert into days
-    int days = diff * 1000 * 60 * 60 * 24;
-
-    return days;
+    return 0;
   }
 
   public long getLastFedTimestamp() {
@@ -84,7 +89,7 @@ public class Monster {
 
   public void eat() {
     updateHP(getHP() + 1);
-    this.lastFedTimestamp = Date.getTime();
+    this.lastFedTimestamp = new Date().getTime();
   }
 
   public void sleep() {

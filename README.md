@@ -1,7 +1,12 @@
 # eTamagotchi
 ## Version
 
-### 1.3 - LATEST 3/11/2018
+### 1.4 - LATEST 3/30/2018
+* Monster format keeps up with last feeding time - will be used for hunger and 💩
+* Monsters have birthdays
+* Monsters can calculate age (in days old)
+
+### 1.3
 * Android build now hosts and joins battles
 * Don't have android? Battle from PC! - P2P Battles tested across phone and desktop apps
 * New android landscape layout

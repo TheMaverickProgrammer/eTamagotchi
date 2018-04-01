@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.*; // DEBUG
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.Date;
 import java.text.SimpleDateFormat;
 
 public class eTamagotchi extends Thread {
@@ -160,7 +161,7 @@ public class eTamagotchi extends Thread {
         eTamagotchi.loadMonster();
 
         if(monster == null) {
-          Long now = Date.getTime();
+          Long now = new Date().getTime();
           int tileID = (int) Math.floor(Math.random()*((int)NUM_COLS*NUM_ROWS));
           String name = getMonsterNameFromID(tileID);
           String birthday = new SimpleDateFormat("MM/dd/yyyy").format(now);

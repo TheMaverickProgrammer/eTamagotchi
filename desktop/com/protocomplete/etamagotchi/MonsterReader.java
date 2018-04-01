@@ -88,7 +88,7 @@ public class MonsterReader {
         Element kdr = (Element) p2p.getElementsByTagName("KDR").item(0);
 
         int hp = Integer.parseInt(health.getElementsByTagName("Current").item(0).getTextContent());
-        long lastFedTimestamp = Integer.parseInt(health.getElementsByTagName("LastFedTimestamp").item(0).getTextContent());
+        long lastFedTimestamp = Long.parseLong(health.getElementsByTagName("LastFedTimestamp").item(0).getTextContent());
         String birthday = el.getElementsByTagName("Birthday").item(0).getTextContent();
         int maxHP = Integer.parseInt(health.getElementsByTagName("Max").item(0).getTextContent());
         int minDmg = Integer.parseInt(damage.getElementsByTagName("Min").item(0).getTextContent());

@@ -59,7 +59,7 @@ public class MonsterWriter {
   		Element rootElement = doc.createElement("eTamagotchi");
       // set attribute to Monster element
       Attr attr = doc.createAttribute("version");
-      attr.setValue("1.0");
+      attr.setValue("1.1");
       rootElement.setAttributeNode(attr);
   		doc.appendChild(rootElement);
 
@@ -86,7 +86,7 @@ public class MonsterWriter {
       Element health = doc.createElement("Health");
 
 			Element lastFedTimestamp = doc.createElement("LastFedTimestamp");
-			lastFedTimestamp.appendChild(doc.createTextNode(Integer.toString(mon.getLastFedTimestamp())));
+			lastFedTimestamp.appendChild(doc.createTextNode(Long.toString(mon.getLastFedTimestamp())));
 
       Element current = doc.createElement("Current");
       current.appendChild(doc.createTextNode(Integer.toString(mon.getHP())));
