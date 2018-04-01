@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.*; // DEBUG
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
+import java.text.SimpleDateFormat;
 
 public class eTamagotchi extends Thread {
 
@@ -85,9 +86,11 @@ public class eTamagotchi extends Thread {
 
     private static void showStats() {
       String content = "Digimon: " + monster.getName()
+                      + "\nBday: " + monster.getBirthday()
                       + "\nHP : " + monster.getHP() + "/" + monster.getMaxHP()
                       + "\nATK: " + monster.getMaxDamage()
                       + "\nKDR: " + monster.getWins() + " / " + monster.getLosses();
+
       JOptionPane.showMessageDialog(null, content);
     }
 
@@ -108,7 +111,7 @@ public class eTamagotchi extends Thread {
         monster = MonsterReader.read(new File("./"), "digimon.xml");
 
         if(monster == null) {
-          System.out.print("Monsteer could not be read");
+          System.out.print("Monster could not be read");
         }
       } catch(Exception e) {
         e.printStackTrace();
@@ -157,8 +160,11 @@ public class eTamagotchi extends Thread {
         eTamagotchi.loadMonster();
 
         if(monster == null) {
+          Long now = Date.getTime();
           int tileID = (int) Math.floor(Math.random()*((int)NUM_COLS*NUM_ROWS));
           String name = getMonsterNameFromID(tileID);
+          String birthday = new SimpleDateFormat("MM/dd/yyyy").format(now);
+          Long lastFedTimestamp = now;
           int HP = 1;
           int maxHP = 6;
           int minDamage = 1;
@@ -167,7 +173,7 @@ public class eTamagotchi extends Thread {
           int wins = 0;
           int losses = 0;
 
-          monster = new Monster(tileID, name, HP, maxHP, minDamage, maxDamage, wins, losses);
+          monster = new Monster(tileID, birthday, name, lastFedTimestamp, HP, maxHP, minDamage, maxDamage, wins, losses);
           myMonsterImage = getMonsterTileFromID(monster.getID());
 
         } else {
