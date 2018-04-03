@@ -1,10 +1,11 @@
 # eTamagotchi
 ## Version
 
-### 1.4 - LATEST 4/3/2018
+### 1.4 - LATEST 4/3/2018 (Desktop version)
 * Monster format keeps up with last feeding time - this affects hp and acts in place as hunger and 💩
 * Monsters have birthdays
 * Monsters can calculate age (in days old)
+* Monsters can be cared for (cleaned)
 * Added battle codes - shortened IPs which are easier to remember, type, and looks better
 
 ### 1.3
