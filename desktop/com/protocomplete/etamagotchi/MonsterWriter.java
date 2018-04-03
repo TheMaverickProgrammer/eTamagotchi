@@ -26,7 +26,8 @@ XML Representation For version 1.1
     <Name>Agumon</Name>
     <Stats>
       <Health>
-				<LastFedTimestamp>1567890</LastFedTimestamp>
+				<CareTime>1567890</CareTime>
+				<FeedTime>1567890</FeedTime>
         <Current>6</Current>
         <Max>6</Max>
       </Health>
@@ -85,8 +86,11 @@ public class MonsterWriter {
       Element stats = doc.createElement("Stats");
       Element health = doc.createElement("Health");
 
-			Element lastFedTimestamp = doc.createElement("LastFedTimestamp");
+			Element lastFedTimestamp = doc.createElement("FeedTime");
 			lastFedTimestamp.appendChild(doc.createTextNode(Long.toString(mon.getLastFedTimestamp())));
+
+			Element lastCareTimestamp = doc.createElement("CareTime");
+			lastCareTimestamp.appendChild(doc.createTextNode(Long.toString(mon.getLastCareTimestamp())));
 
       Element current = doc.createElement("Current");
       current.appendChild(doc.createTextNode(Integer.toString(mon.getHP())));
@@ -99,7 +103,8 @@ public class MonsterWriter {
       //  <Current>6</Current>
       //  <Max>6</Max>
       // </Health>
-      health.appendChild(maxhp); health.appendChild(current); health.appendChild(lastFedTimestamp);
+      health.appendChild(maxhp); health.appendChild(current);
+			health.appendChild(lastFedTimestamp); health.appendChild(lastCareTimestamp);
       stats.appendChild(health);
 
   		// nickname elements

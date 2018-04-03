@@ -28,7 +28,8 @@ XML Representation For version 1.1
     <Name>Agumon</Name>
     <Stats>
       <Health>
-        <LastFedTimestamp>1567789</LastFedTimestamp>
+        <CareTime>1567789</CareTime>
+        <FeedTime>1567789</FeedTime>
         <Current>6</Current>
         <Max>6</Max>
       </Health>
@@ -88,7 +89,8 @@ public class MonsterReader {
         Element kdr = (Element) p2p.getElementsByTagName("KDR").item(0);
 
         int hp = Integer.parseInt(health.getElementsByTagName("Current").item(0).getTextContent());
-        long lastFedTimestamp = Long.parseLong(health.getElementsByTagName("LastFedTimestamp").item(0).getTextContent());
+        long lastFedTimestamp = Long.parseLong(health.getElementsByTagName("FeedTime").item(0).getTextContent());
+        long lastCareTimestamp = Long.parseLong(health.getElementsByTagName("CareTime").item(0).getTextContent());
         String birthday = el.getElementsByTagName("Birthday").item(0).getTextContent();
         int maxHP = Integer.parseInt(health.getElementsByTagName("Max").item(0).getTextContent());
         int minDmg = Integer.parseInt(damage.getElementsByTagName("Min").item(0).getTextContent());
@@ -103,6 +105,7 @@ public class MonsterReader {
                           birthday,
                           name,
                           lastFedTimestamp,
+                          lastCareTimestamp,
                           hp,
                           maxHP,
                           minDmg,

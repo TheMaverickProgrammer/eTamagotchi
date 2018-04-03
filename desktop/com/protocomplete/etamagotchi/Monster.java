@@ -1,17 +1,17 @@
 package com.protocomplete.etamagotchi;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
 public class Monster {
   int ID, hp, maxHP, minDamage, maxDamage;
   int wins, losses; // pvp
-  long lastFedTimestamp;
+  long lastFedTimestamp, lastCareTimestamp;
   String name;
   String birthday;
 
-  Monster(int ID, String birthday, String name, long lastFedTimestamp, int hp, int maxHP, int minDamage, int maxDamage, int wins, int losses) {
+  Monster(int ID, String birthday, String name, long lastFedTimestamp, long lastCareTimestamp, int hp, int maxHP, int minDamage, int maxDamage, int wins, int losses) {
     this.ID = ID;
     this.birthday = birthday;
     this.name = name;
@@ -22,6 +22,7 @@ public class Monster {
     this.wins = wins;
     this.losses = losses;
     this.lastFedTimestamp = lastFedTimestamp;
+    this.lastCareTimestamp = lastCareTimestamp;
   }
 
   public int getID() {
@@ -59,6 +60,19 @@ public class Monster {
     return this.lastFedTimestamp;
   }
 
+  public long getLastCareTimestamp() {
+    return this.lastCareTimestamp;
+  }
+
+  public int getHoursSinceLastFed() {
+    long lastFedTimestamp = this.getLastFedTimestamp();
+    long now = new Date().getTime();
+    long diff= now - lastFedTimestamp;
+    int hours = (int)(diff / 1000 / 60 / 60);
+
+    return hours;
+  }
+
   public String getName() {
     return this.name;
   }
@@ -92,8 +106,16 @@ public class Monster {
     this.lastFedTimestamp = new Date().getTime();
   }
 
-  public void sleep() {
+  public void care() {
+    this.lastCareTimestamp = new Date().getTime();
+  }
 
+  public void sleep() {
+    updateHP(getHP() + 1);
+  }
+
+  public void starve() {
+    updateHP(getHP() - 1);
   }
 
   public void updateHP(int newHP) {
@@ -101,6 +123,10 @@ public class Monster {
 
     if(this.hp > this.maxHP) {
       this.hp = this.maxHP;
+    }
+
+    if(this.hp <= 0) {
+      this.hp = 0;
     }
   }
 

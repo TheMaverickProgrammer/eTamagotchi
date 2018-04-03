@@ -1,10 +1,11 @@
 # eTamagotchi
 ## Version
 
-### 1.4 - LATEST 3/30/2018
-* Monster format keeps up with last feeding time - will be used for hunger and 💩
+### 1.4 - LATEST 4/3/2018
+* Monster format keeps up with last feeding time - this affects hp and acts in place as hunger and 💩
 * Monsters have birthdays
 * Monsters can calculate age (in days old)
+* Added battle codes - shortened IPs which are easier to remember, type, and looks better
 
 ### 1.3
 * Android build now hosts and joins battles
@@ -85,11 +86,11 @@ and forth the BattleThread and the Render instances instead of how I'm doing it.
 
 * Reward battling monsters with EXP points (e.g. winners +3 EXP, losers +1 EXP)
 
-* Decrease health after X hours to reinforce feeding
+* ~~Decrease health after X hours to reinforce feeding~~
 
 * Add mood (hidden) stat
 
-* 💩
+* ~~💩~~
 
 * Evolution trees
 

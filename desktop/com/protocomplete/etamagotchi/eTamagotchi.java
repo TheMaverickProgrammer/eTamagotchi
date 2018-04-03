@@ -41,12 +41,13 @@ import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.Random; // For seeded generator
 
 public class eTamagotchi extends Thread {
 
     // Java Swing GUI drawing stuff
     static final double TILE_WIDTH = 480/10, TILE_HEIGHT = 384/6, NUM_COLS = 10, NUM_ROWS = 6;
-    static BufferedImage tiles = null, attackImg = null, hostImg = null;
+    static BufferedImage tiles = null, attackImg = null, hostImg = null, poop = null;
     static Timer timer;
 
     // Server/client stuff
@@ -87,7 +88,7 @@ public class eTamagotchi extends Thread {
 
     private static void showStats() {
       String content = "Digimon: " + monster.getName()
-                      + "\nBday: " + monster.getBirthday()
+                      + "\nBday: " + monster.getBirthday() + " - " + monster.getDaysOld() + " days old!"
                       + "\nHP : " + monster.getHP() + "/" + monster.getMaxHP()
                       + "\nATK: " + monster.getMaxDamage()
                       + "\nKDR: " + monster.getWins() + " / " + monster.getLosses();
@@ -95,8 +96,26 @@ public class eTamagotchi extends Thread {
       JOptionPane.showMessageDialog(null, content);
     }
 
+    private static void showBattleCode() {
+      String bc = BattleCode.pack("127.0.0.1");
+
+      String content = "Your monster battle code is " + bc;
+
+      JOptionPane.showMessageDialog(null, content);
+    }
+
     private static String getMonsterNameFromID(int ID) {
-      return new String("Digimon");
+      String name = new String("???");
+
+      switch(ID) {
+        case 0:
+          name = new String("Birdmon");
+        break;
+        case 1:
+          name = new String("super birdmon");
+        break;
+      }
+      return name;
     }
 
     private static void saveMonster() {
@@ -137,20 +156,25 @@ public class eTamagotchi extends Thread {
         mb.add(m1);
         mb.add(m2);
         JMenuItem m11 = new JMenuItem("Feed");
-        JMenuItem m12 = new JMenuItem("HOST P2P Battle");
-        JMenuItem m13 = new JMenuItem("JOIN P2P Battle");
+        JMenuItem m12 = new JMenuItem("Clean");
+        JMenuItem m13 = new JMenuItem("HOST P2P Battle");
+        JMenuItem m14 = new JMenuItem("JOIN P2P Battle");
         m1.add(m11);
         m1.add(m12);
         m1.add(m13);
+        m1.add(m14);
         JMenuItem m21 = new JMenuItem("Stats");
-        JMenuItem m22 = new JMenuItem("Save");
+        JMenuItem m22 = new JMenuItem("Battle Code");
+        JMenuItem m23 = new JMenuItem("Save");
         m2.add(m21);
         m2.add(m22);
+        m2.add(m23);
 
         try {
           tiles = ImageIO.read(new File(eTamagotchi.getResource("monsters.png")));
           hostImg = ImageIO.read(new File(eTamagotchi.getResource("hosting.png")));
           attackImg = ImageIO.read(new File(eTamagotchi.getResource("attack.png")));
+          poop = ImageIO.read(new File(eTamagotchi.getResource("poop.png")));
         } catch (Exception e) {
           // Not found, will try to throw an exception. Fail.
           e.printStackTrace();
@@ -166,6 +190,7 @@ public class eTamagotchi extends Thread {
           String name = getMonsterNameFromID(tileID);
           String birthday = new SimpleDateFormat("MM/dd/yyyy").format(now);
           Long lastFedTimestamp = now;
+          Long lastCareTimestamp = now;
           int HP = 1;
           int maxHP = 6;
           int minDamage = 1;
@@ -174,7 +199,7 @@ public class eTamagotchi extends Thread {
           int wins = 0;
           int losses = 0;
 
-          monster = new Monster(tileID, birthday, name, lastFedTimestamp, HP, maxHP, minDamage, maxDamage, wins, losses);
+          monster = new Monster(tileID, birthday, name, lastFedTimestamp, lastCareTimestamp, HP, maxHP, minDamage, maxDamage, wins, losses);
           myMonsterImage = getMonsterTileFromID(monster.getID());
 
         } else {
@@ -184,8 +209,10 @@ public class eTamagotchi extends Thread {
         //Creating the panel at bottom and adding components
         JPanel panel = new JPanel();
         JButton feed = new JButton("Feed");
-        JButton doBattle = new JButton("Do Battle");
+        JButton clean = new JButton("Clean");
+        JButton doBattle = new JButton("Battle");
         panel.add(feed); // Components Added using Flow Layout
+        panel.add(clean);
         panel.add(doBattle); // Components Added using Flow Layout
 
         // Make menu items and buttons do stuff
@@ -198,9 +225,20 @@ public class eTamagotchi extends Thread {
         feed.addActionListener(feedAction);
         m11.addActionListener(feedAction);
 
+        ActionListener cleanAction = new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+              monster.care();
+          }
+        };
+
+        clean.addActionListener(cleanAction);
+        m12.addActionListener(cleanAction);
+
         ActionListener P2PAction = new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            String IP = JOptionPane.showInputDialog(frame, "Enter IP address of monster", null);
+            String bc = JOptionPane.showInputDialog(frame, "Enter other monster's battle code", null);
+            String IP = BattleCode.unpack(bc);
+
             System.out.print("Dest IP: " + IP + "\n");
 
             if(IP == null) {
@@ -208,7 +246,6 @@ public class eTamagotchi extends Thread {
               return;
             }
 
-            // TODO: BattleThread connect
             // Finally start the battle thread in the background
             try {
              battleThread = new BattleThread(IP, PORT, false, monster.getID(), monster.getHP(), monster.getMaxDamage());
@@ -233,7 +270,7 @@ public class eTamagotchi extends Thread {
           }
         };
 
-        m12.addActionListener(HostAction);
+        m14.addActionListener(HostAction);
 
         ActionListener StatsClickedAction = new ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -243,13 +280,21 @@ public class eTamagotchi extends Thread {
 
         m21.addActionListener(StatsClickedAction);
 
+        ActionListener BattleCodeClickedAction = new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            showBattleCode();
+          }
+        };
+
+        m22.addActionListener(BattleCodeClickedAction);
+
         ActionListener SaveClickedAction = new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             saveMonster();
           }
         };
 
-        m22.addActionListener(SaveClickedAction);
+        m23.addActionListener(SaveClickedAction);
 
         // Drawable panel at the Center
         JPanel canvas = new JPanel() {
@@ -303,6 +348,30 @@ public class eTamagotchi extends Thread {
                 }
 
                 if(!inBattle) {
+                  // Check health over time fed
+                  // 24 hours should deplete max bars of health
+                  double barHours = 24.0/monster.getMaxHP();
+                  long lastFedTimestamp =  monster.getLastFedTimestamp();
+                  int hours = monster.getHoursSinceLastFed();
+
+                  Random generator = new Random(lastFedTimestamp);
+                  double inc = 0;
+
+                  while(inc < (double)hours) {
+
+                    // draw poop
+                    double x = generator.nextDouble() * (0.5);
+                    double y = generator.nextDouble() * (0.5);
+
+                    g.drawImage(poop,
+                                (int)((double)x*(((double)super.getWidth()/2.0)+30.0)),
+                                (super.getHeight()/2) - (int)(y*(40.0/2.0)),
+                                null);
+
+                    inc += barHours;
+                  }
+
+
                   // make it move around I guess
                   int xpos = 0;
 
