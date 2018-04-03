@@ -37,6 +37,9 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.*; // DEBUG
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.Date;
@@ -97,9 +100,34 @@ public class eTamagotchi extends Thread {
     }
 
     private static void showBattleCode() {
-      String bc = BattleCode.pack("127.0.0.1");
+      URL whatismyip = null;
+      BufferedReader in = null;
+      String ip = null;
 
-      String content = "Your monster battle code is " + bc;
+      try {
+        whatismyip = new URL("http://checkip.amazonaws.com");
+        in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+        ip = in.readLine();
+      } catch(Exception e) {
+        ip = null; // TODO: log the exception?
+      } finally {
+        if (in != null) {
+          try {
+            in.close();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+
+      String content = null;
+
+      if(ip != null) {
+        String bc = BattleCode.pack(ip);
+        content = "Your monster battle code is " + bc;
+      } else {
+        content = "Sorry! Your monster battle code is unavailable at this time!";
+      }
 
       JOptionPane.showMessageDialog(null, content);
     }
