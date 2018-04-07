@@ -99,7 +99,7 @@ public class eTamagotchi extends Thread {
       JOptionPane.showMessageDialog(null, content);
     }
 
-    private static void showBattleCode() {
+    private static String getClientBattleCode() {
       URL whatismyip = null;
       BufferedReader in = null;
       String ip = null;
@@ -124,6 +124,18 @@ public class eTamagotchi extends Thread {
 
       if(ip != null) {
         String bc = BattleCode.pack(ip);
+        return bc;
+      }
+
+      return null;
+    }
+
+    private static void showBattleCode() {
+      String bc = getClientBattleCode();
+
+      String content = null;
+
+      if(bc != null) {
         content = "Your monster battle code is " + bc;
       } else {
         content = "Sorry! Your monster battle code is unavailable at this time!";
@@ -265,14 +277,20 @@ public class eTamagotchi extends Thread {
         ActionListener P2PAction = new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             String bc = JOptionPane.showInputDialog(frame, "Enter other monster's battle code", null);
-            String IP = BattleCode.unpack(bc);
 
-            System.out.print("Dest IP: " + IP + "\n");
-
-            if(IP == null) {
-              // Canceled
+            if(bc == null) {
+              // Canceled op
               return;
             }
+
+            String IP = BattleCode.unpack(bc);
+
+            if(bc.equals(getClientBattleCode())) {
+              // we're fighting ourselves
+              IP = "127.0.0.1";
+            }
+
+            System.out.print("Dest IP: " + IP + "\n");
 
             // Finally start the battle thread in the background
             try {
@@ -285,7 +303,7 @@ public class eTamagotchi extends Thread {
         };
 
         doBattle.addActionListener(P2PAction);
-        m13.addActionListener(P2PAction);
+        m14.addActionListener(P2PAction);
 
         ActionListener HostAction = new ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -298,7 +316,7 @@ public class eTamagotchi extends Thread {
           }
         };
 
-        m14.addActionListener(HostAction);
+        m13.addActionListener(HostAction);
 
         ActionListener StatsClickedAction = new ActionListener() {
           public void actionPerformed(ActionEvent e) {
