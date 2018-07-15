@@ -73,6 +73,19 @@ public class Monster {
     return hours;
   }
 
+  public int getHoursSinceLastCared() {
+    long lastCareTimestamp = this.getLastCareTimestamp();
+    long now = new Date().getTime();
+    long diff= now - lastCareTimestamp;
+    int hours = (int)(diff / 1000 / 60 / 60);
+
+    return hours;
+  }
+
+  public boolean isEgg() {
+    return (this.getDaysOld() == 0);
+  }
+
   public String getName() {
     return this.name;
   }
