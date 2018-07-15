@@ -1,14 +1,27 @@
 # eTamagotchi
+
+Desktop version is at `1.5`
+Android version is at `1.3`
+
 ## Version
 
-### 1.4 - LATEST 4/3/2018 (Desktop version)
+### 1.5 - LATEST 7/14/2018 (Desktop version)
+* Monsters start out as eggs
+* Monsters can evolve over time when certain conditions are met
+* Messes can be cared for (clean up mess)
+* Monster avoids Messes
+* HP UI dynamically scales to fit screen
+* Stats are boosted if monster has a winning streak
+* Monster names are now read from table
+* Monsters can evolve all the way to Mega form
+
+### 1.4
 * Monster format keeps up with last feeding time - this affects hp and acts in place as hunger and 💩
 * Monsters have birthdays
 * Monsters can calculate age (in days old)
-* Monsters can be cared for (cleaned)
 * Added battle codes - shortened IPs which are easier to remember, type, and looks better
 
-### 1.3
+### 1.3 (Android version)
 * Android build now hosts and joins battles
 * Don't have android? Battle from PC! - P2P Battles tested across phone and desktop apps
 * New android landscape layout
