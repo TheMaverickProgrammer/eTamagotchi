@@ -19,9 +19,14 @@ import android.os.Build;
 import android.util.Log;
 import android.util.AttributeSet;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.Random;
 
 public class RenderView extends SurfaceView implements Runnable, OnTouchListener {
@@ -68,6 +73,24 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       init(context);
     }
 
+    public String getStatusInfo() {
+      String content = "Digimon: " + monster.getName()
+                      + "\nBday: " + monster.getBirthday() + " - " + monster.getDaysOld() + " days old!"
+                      + "\nHP : " + monster.getHP() + "/" + monster.getMaxHP()
+                      + "\nATK: " + monster.getMaxDamage()
+                      + "\nKDR: " + monster.getWins() + " / " + monster.getLosses();
+
+      if(monster.isEgg()) {
+        content = "Digimon: " + "Egg"
+                        + "\nBday: " + monster.getBirthday() + " - " + monster.getDaysOld() + " days old!"
+                        + "\nHP : " + "???" + "/" + "???"
+                        + "\nATK: " + "???"
+                        + "\nKDR: " + monster.getWins() + " / " + monster.getLosses();
+      }
+
+      return content;
+    }
+
     private Sprite getMonsterSpriteFromID(Bitmap source, int id) {
       // tiles are 16 x 16 pixels long
       int row = (int) Math.floor((double)id / (double)NUM_COLS);
@@ -84,6 +107,14 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       monster.eat();
     }
 
+    public void careMonster() {
+      if(monster == null) {
+        return;
+      }
+
+      monster.care();
+    }
+
     public void hostBattle() {
       try {
        battleThread = new BattleThread("", this.PORT, true, monster.getID(), monster.getHP(), monster.getMaxDamage());
@@ -91,6 +122,45 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       } catch (IOException ex) {
        ex.printStackTrace();
       }
+    }
+
+    public static String getLocalIpAddress(){
+       try {
+         for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+           NetworkInterface intf = en.nextElement();
+
+           for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+
+             InetAddress inetAddress = enumIpAddr.nextElement();
+             if (!inetAddress.isLoopbackAddress()) {
+               return inetAddress.getHostAddress();
+             }
+           }
+         }
+       } catch (Exception ex) {
+          Log.e("IP Address", ex.toString());
+      }
+
+      return null;
+    }
+
+    private static String getClientBattleCode() {
+      String ip = RenderView.getLocalIpAddress();
+
+      if(ip != null) {
+        String bc = BattleCode.pack(ip);
+        return bc;
+      }
+
+      return null;
+    }
+
+    public boolean isEgg() {
+      if(monster != null) {
+        return monster.isEgg();
+      }
+
+      return true;
     }
 
     public void joinBattle(String bc) {
@@ -123,7 +193,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       hostIcon = getBitmapFromAsset(context.getAssets(), "hosting.png");
       attackIcon = getBitmapFromAsset(context.getAssets(), "attack.png");
       egg = getBitmapFromAsset(context.getAssets(), "egg.png");
-      poo = getBitmapFromAsset(context.getAssets(), "poo.png");
+      poo = getBitmapFromAsset(context.getAssets(), "poop.png");
 
       // callback
       holder = getHolder();
@@ -149,25 +219,11 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
         int maxHP = 5;
         int minDamage = 1;
         int maxDamage = ThreadLocalRandom.current().nextInt(1, 3 + 1); // min = 1, max = 3
-        int xpos = 0; // move around inbetween the frame
         int wins = 0;
         int losses = 0;
 
         monster = new Monster(tileID, birthday, name, lastFedTimestamp, lastCareTimestamp, HP, maxHP, minDamage, maxDamage, wins, losses);
       }
-
-      ActionListener hourlyPerformer = new ActionListener() {
-        public void actionPerformed(ActionEvent evt) {
-          // Real-time updates
-
-
-          // get hungry
-          monster.starve();
-        }
-      };
-
-      Timer hourlyUpdate = new Timer(1000*60*60, hourlyPerformer);
-      hourlyUpdate.start();
     }
 
     private static String getMonsterNameFromID(int ID) {
@@ -202,7 +258,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       We see if it's a baby, trainee, rookie, champion, ultimate, or mega by the row it's in
       Based on that, we see if it's had enough Wins/Losses to move up the ranks
     */
-    private static boolean canEvolve(Monster monsterIn) {
+    private boolean canEvolve(Monster monsterIn) {
       // 0 - 9 BABY
       if(monsterIn.getID() < 10) {
         if(monsterIn.getDaysOld() > 5) {
@@ -243,7 +299,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     NOTE: This is where things like overall care score and mood would affect status
           You can add this feature in
     */
-    private static void evolve(Monster monsterIn) {
+    private void evolve(Monster monsterIn) {
       // The spritesheet as 10 monsters per row
       int tileID =  monsterIn.getID()+10;
       String name = getMonsterNameFromID(tileID);
@@ -278,11 +334,7 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       }
 
       monster = new Monster(tileID, birthday, name, lastFedTimestamp, lastCareTimestamp, HP, maxHP, minDamage, maxDamage, wins, losses);
-      myMonsterImage = getMonsterTileFromID(monster.getID());
-    }
-
-    public String getMonsterNameFromID(int ID) {
-      return new String("Digimon");
+      monsterSprite = getMonsterSpriteFromID(monsters, monster.getID());
     }
 
     public static Bitmap getBitmapFromAsset(AssetManager assetManager, String filePath) {
@@ -321,8 +373,10 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
             attackSprite.setScale(2);
 
             eggSprite = new Sprite(this, egg);
+            eggSprite.setScale(2);
 
             pooSprite = new Sprite(this, poo);
+            pooSprite.setScale(2);
 
             isSpriteLoaded = true;
           }
@@ -401,14 +455,14 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       if(!inBattle) {
         if(monster.isEgg()) {
           if(isSpriteLoaded) {
-            eggSprite.setPosX(getWidth()/2);
+            eggSprite.setPosX((getWidth()/2)-(eggSprite.getWidth()/2));
             eggSprite.setPosY(getHeight()/2);
             eggSprite.onDraw(canvas);
           }
         } else {
           // evolve if ready
-          if(RenderView.canEvolve(monster)) {
-            RenderView.evolve(monster);
+          if(canEvolve(monster)) {
+            evolve(monster);
           }
 
           // If the monster has not beed cleaned up, show poop
@@ -431,8 +485,8 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
             double y = generator.nextDouble() * (0.5);
 
             if(isSpriteLoaded) {
-              pooSprite.setPosX(int)((double)x*(((double)super.getWidth()/2.0)+30.0));
-              pooSprite.setPosY(super.getHeight()/2) - (int)(y*(40.0/2.0));
+              pooSprite.setPosX((int)((double)x*(((double)super.getWidth()/2.0)+30.0)));
+              pooSprite.setPosY((super.getHeight()/2) - (int)(y*(40.0/2.0)));
               pooSprite.onDraw(canvas);
             }
 
@@ -532,8 +586,8 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     }
 
     public boolean onTouch(View v, MotionEvent me) {
-      // monsterSprite.setPosX((int)me.getX());
-      // monsterSprite.setPosY((int)me.getY());
+      monsterSprite.setPosX((int)me.getX());
+      monsterSprite.setPosY((int)me.getY());
 
       switch(me.getAction()) {
         case MotionEvent.ACTION_DOWN:

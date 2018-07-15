@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal" android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@android:color/background_light">
+
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="vertical" android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@android:color/background_light">
+
+		<TextView android:id="@+id/textName"
+			android:layout_width="wrap_content"
+		  android:layout_height="wrap_content"/>
+
+		<TextView android:id="@+id/textBirthday"
+			android:layout_width="wrap_content"
+		  android:layout_height="wrap_content"/>
+
+		<TextView android:id="@+id/textHP"
+			android:layout_width="wrap_content"
+		  android:layout_height="wrap_content"/>
+
+		<TextView android:id="@+id/textATK"
+			android:layout_width="wrap_content"
+		  android:layout_height="wrap_content"/>
+
+		<TextView android:id="@+id/textKDR"
+			android:layout_width="wrap_content"
+		  android:layout_height="wrap_content"/>
+		</LinearLayout>
+
+</LinearLayout>

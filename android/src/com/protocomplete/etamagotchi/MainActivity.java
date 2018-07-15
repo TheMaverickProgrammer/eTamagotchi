@@ -19,30 +19,13 @@ import java.net.NetworkInterface;
 import java.util.Enumeration;
 import com.protocomplete.etamagotchi.R;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.TextView;
+
 public class MainActivity extends Activity {
    String msg = "Android : ";
    RenderView view;
-
-   /** Special class implementations */
-   public String getLocalIpAddress(){
-      try {
-        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-          NetworkInterface intf = en.nextElement();
-
-          for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-
-            InetAddress inetAddress = enumIpAddr.nextElement();
-            if (!inetAddress.isLoopbackAddress()) {
-              return inetAddress.getHostAddress();
-            }
-          }
-        }
-      } catch (Exception ex) {
-         Log.e("IP Address", ex.toString());
-     }
-
-     return null;
-   }
 
    /** Called when the activity is first created. */
    @Override
@@ -60,8 +43,37 @@ public class MainActivity extends Activity {
       feedButton.setOnClickListener(
         new OnClickListener() {
           public void onClick(View v) {
+            if(view.isEgg()) {
+              String text = "Wait for the egg to hatch";
+              int duration = 40*1000; //Toast.LENGTH_SHORT;
+
+              Toast toast = Toast.makeText(MainActivity.this, (CharSequence)text, duration);
+              toast.show();
+              return;
+            }
+
             // Code here executes on main thread after user presses button
             view.feedMonster();
+          }
+        }
+      );
+
+      Button careButton = (Button)findViewById(R.id.careButton);
+
+      careButton.setOnClickListener(
+        new OnClickListener() {
+          public void onClick(View v) {
+            if(view.isEgg()) {
+              String text = "Wait for the egg to hatch";
+              int duration = 40*1000; //Toast.LENGTH_SHORT;
+
+              Toast toast = Toast.makeText(MainActivity.this, (CharSequence)text, duration);
+              toast.show();
+              return;
+            }
+
+            // Code here executes on main thread after user presses button
+            view.careMonster();
           }
         }
       );
@@ -71,6 +83,15 @@ public class MainActivity extends Activity {
       battleButton.setOnClickListener(
         new OnClickListener() {
           public void onClick(View v) {
+            if(view.isEgg()) {
+              String text = "This egg is completely defenseless";
+              int duration = 40*1000; //Toast.LENGTH_SHORT;
+
+              Toast toast = Toast.makeText(MainActivity.this, (CharSequence)text, duration);
+              toast.show();
+              return;
+            }
+
             // Let the user choose to host or join and delegate that
             final CharSequence battleTypes[] = new CharSequence[] {"Host", "Join", "Train"};
 
@@ -84,7 +105,7 @@ public class MainActivity extends Activity {
                       // Toast the IP address...
 
                       // insert at 0 == prepend a string
-                      String text = "Monster battle code is " + BattleCode.pack(getLocalIpAddress());
+                      String text = "Monster battle code is " + BattleCode.pack(RenderView.getLocalIpAddress());
                       int duration = 40*1000; //Toast.LENGTH_SHORT;
 
                       Toast toast = Toast.makeText(MainActivity.this, (CharSequence)text, duration);
@@ -124,10 +145,28 @@ public class MainActivity extends Activity {
                     } else if(battleTypes[which].equals("Train")) {
                       // Do training...
                       view.train();
+
+                      String text = "Training available in the next update!";
+                      int duration = 40*1000; //Toast.LENGTH_SHORT;
+
+                      Toast toast = Toast.makeText(MainActivity.this, (CharSequence)text, duration);
+                      toast.show();
                     }
                 }
             });
             builder.show();
+          }
+        }
+      );
+
+      Button statusButton = (Button)findViewById(R.id.statsButton);
+
+      statusButton.setOnClickListener(
+        new OnClickListener() {
+          public void onClick(View v) {
+            Intent intent = new Intent(MainActivity.this, StatsActivity.class);
+            intent.putExtra("data", view.getStatusInfo());
+            startActivity(intent);
           }
         }
       );
@@ -175,26 +214,4 @@ public class MainActivity extends Activity {
     super.onDestroy();
     Log.d(msg, "The onDestroy() event");
    }
-
-  /*@Override
-  public void onConfigurationChanged(Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-
-    setContentView(R.layout.main);
-
-    view = (RenderView)findViewById(R.id.view);
-
-    Button feedButton = (Button)findViewById(R.id.feedButton);
-
-    // view.loadMonster();
-
-    feedButton.setOnClickListener(
-      new OnClickListener() {
-        public void onClick(View v) {
-          // Code here executes on main thread after user presses button
-          view.feedMonster();
-        }
-      }
-    );
-  }*/
 }

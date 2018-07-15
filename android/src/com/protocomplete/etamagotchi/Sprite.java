@@ -78,6 +78,14 @@ class Sprite {
     posY = y;
   }
 
+  public int getWidth() {
+    return width*scale;
+  }
+
+  public int getHeight() {
+    return height*scale;
+  }
+
   public Sprite flipX() {
     Matrix matrix = new Matrix();
     matrix.preScale(-1.0f, 1.0f);

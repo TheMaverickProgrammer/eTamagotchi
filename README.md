@@ -2,7 +2,7 @@
 
 Desktop version is at `1.5`
 
-Android version is at `1.3`
+Android version is at `1.5`
 
 ![egg](./screens/egg.png)
 ![life](./screens/moving.png)
@@ -10,7 +10,7 @@ Android version is at `1.3`
 
 ## Version
 
-### 1.5 - LATEST 7/14/2018 (Desktop version)
+### 1.5 - LATEST 7/14/2018 (Both android + desktop version)
 * Monsters start out as eggs
 * Monsters can evolve over time when certain conditions are met
 * Messes can be cared for (clean up mess)
@@ -26,7 +26,7 @@ Android version is at `1.3`
 * Monsters can calculate age (in days old)
 * Added battle codes - shortened IPs which are easier to remember, type, and looks better
 
-### 1.3 (Android version)
+### 1.3
 * Android build now hosts and joins battles
 * Don't have android? Battle from PC! - P2P Battles tested across phone and desktop apps
 * New android landscape layout

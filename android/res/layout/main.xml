@@ -22,10 +22,24 @@
 			android:text="Feed" />
 
 	<Button android:layout_height="wrap_content"
-      android:id="@+id/battleButton"
+      android:id="@+id/careButton"
 			android:layout_width="match_parent"
 			android:layout_margin="2dip"
       android:layout_below="@id/feedButton"
+			android:text="Care" />
+
+	<Button android:layout_height="wrap_content"
+      android:id="@+id/battleButton"
+			android:layout_width="match_parent"
+			android:layout_margin="2dip"
+      android:layout_below="@id/careButton"
 			android:text="Battle" />
+
+	<Button android:layout_height="wrap_content"
+			android:id="@+id/statsButton"
+			android:layout_width="match_parent"
+			android:layout_margin="2dip"
+			android:layout_below="@id/battleButton"
+			android:text="Status" />
 
 </RelativeLayout>
