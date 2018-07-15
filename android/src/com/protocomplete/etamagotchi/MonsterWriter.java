@@ -16,15 +16,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /***
-XML Representation For version 1.0
+XML Representation For version 1.1
 ****
 
-<eTamagotchi version="1.0">
+<eTamagotchi version="1.1">
   <Monster>
     <ID>11</ID>
+		<Birthday>3/14/2018</Birthday>
     <Name>Agumon</Name>
     <Stats>
       <Health>
+				<CareTime>1567890</CareTime>
+				<FeedTime>1567890</FeedTime>
         <Current>6</Current>
         <Max>6</Max>
       </Health>
@@ -57,7 +60,7 @@ public class MonsterWriter {
   		Element rootElement = doc.createElement("eTamagotchi");
       // set attribute to Monster element
       Attr attr = doc.createAttribute("version");
-      attr.setValue("1.0");
+      attr.setValue("1.1");
       rootElement.setAttributeNode(attr);
   		doc.appendChild(rootElement);
 
@@ -69,6 +72,10 @@ public class MonsterWriter {
 			monster.appendChild(ID);
 			// </ID>
 
+			// <Birthday>3/14/2018</Birthday>
+			Element birthday  = doc.createElement("Birthday");
+			birthday.appendChild(doc.createTextNode(mon.getBirthday()));
+			monster.appendChild(birthday);
 
   		// <Name>Agumon</Name>
   		Element name = doc.createElement("Name");
@@ -78,6 +85,13 @@ public class MonsterWriter {
   		// <Stats>
       Element stats = doc.createElement("Stats");
       Element health = doc.createElement("Health");
+
+			Element lastFedTimestamp = doc.createElement("FeedTime");
+			lastFedTimestamp.appendChild(doc.createTextNode(Long.toString(mon.getLastFedTimestamp())));
+
+			Element lastCareTimestamp = doc.createElement("CareTime");
+			lastCareTimestamp.appendChild(doc.createTextNode(Long.toString(mon.getLastCareTimestamp())));
+
       Element current = doc.createElement("Current");
       current.appendChild(doc.createTextNode(Integer.toString(mon.getHP())));
 
@@ -85,10 +99,12 @@ public class MonsterWriter {
       maxhp.appendChild(doc.createTextNode(Integer.toString(mon.getMaxHP())));
 
       // <Health>
+			// 	<LastFedTimestamp>156789</LastFedTimestamp>
       //  <Current>6</Current>
       //  <Max>6</Max>
       // </Health>
       health.appendChild(maxhp); health.appendChild(current);
+			health.appendChild(lastFedTimestamp); health.appendChild(lastCareTimestamp);
       stats.appendChild(health);
 
   		// nickname elements

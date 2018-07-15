@@ -11,15 +11,25 @@ import java.io.*; // DEBUG
 
 
 /***
-XML Representation For version 1.0
+VERSION UPDATE NOTES:
+  1.1 - Added LastFedTimestamp field under Health tag
+        Added Birthday field under Monster tag
+  1.0 - First format
+***/
+
+/***
+XML Representation For version 1.1
 ****
 
-<eTamagotchi version="1.0">
+<eTamagotchi version="1.1">
   <Monster>
     <ID>11</ID>
+    <Birthday>3/14/2018</Birthday>
     <Name>Agumon</Name>
     <Stats>
       <Health>
+        <CareTime>1567789</CareTime>
+        <FeedTime>1567789</FeedTime>
         <Current>6</Current>
         <Max>6</Max>
       </Health>
@@ -57,7 +67,7 @@ public class MonsterReader {
     	//read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
     	doc.getDocumentElement().normalize();
 
-      String v1 = "1.0";
+      String v1 = "1.1";
       String version = doc.getDocumentElement().getAttribute("version");
 
     	if(!v1.equals(version)) {
@@ -79,6 +89,9 @@ public class MonsterReader {
         Element kdr = (Element) p2p.getElementsByTagName("KDR").item(0);
 
         int hp = Integer.parseInt(health.getElementsByTagName("Current").item(0).getTextContent());
+        long lastFedTimestamp = Long.parseLong(health.getElementsByTagName("FeedTime").item(0).getTextContent());
+        long lastCareTimestamp = Long.parseLong(health.getElementsByTagName("CareTime").item(0).getTextContent());
+        String birthday = el.getElementsByTagName("Birthday").item(0).getTextContent();
         int maxHP = Integer.parseInt(health.getElementsByTagName("Max").item(0).getTextContent());
         int minDmg = Integer.parseInt(damage.getElementsByTagName("Min").item(0).getTextContent());
         int maxDmg = Integer.parseInt(damage.getElementsByTagName("Max").item(0).getTextContent());
@@ -88,7 +101,17 @@ public class MonsterReader {
         // ... read in the rest of the xml data...
         // NOTE: could read in a list of special move sets, stat buffs, unique moods, ...
 
-        return new Monster(ID, name, hp, maxHP, minDmg, maxDmg, wins, losses);
+        return new Monster(ID,
+                          birthday,
+                          name,
+                          lastFedTimestamp,
+                          lastCareTimestamp,
+                          hp,
+                          maxHP,
+                          minDmg,
+                          maxDmg,
+                          wins,
+                          losses);
       }
 
       return null;
