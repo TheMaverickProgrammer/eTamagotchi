@@ -56,16 +56,23 @@ Inspired by Digimon "Digivices" tamagotchis circa 1990's. A good foundation for 
 * A random digimon tile is selected and random stats are generated.
 
 * eTamagotchi runs as both a host (timeout=60 seconds) and a client depending on the menu item selected.
+
 ![menu](./screens/menu.png)
+
 ![android-menu](./screens/android-menu.png)
 
 * The digimon moves side to side when healthy (HP > 1)
+
 ![after-battle](./screens/after-battle.png)
+
 ![android-landscape](./screens/android-landscape.png)
 
 * P2P battles.
+
 ![P2P](./screens/P2P.png)
+
 ![android-host](./screens/android-host.png)
+
 ![android-P2P](./screens/android-P2P.png)
 
 * Battles are computed similarly to the originals: one of the devices
@@ -73,10 +80,13 @@ decides who would win before the effects took place on screen. The battles were 
 For eTamagotchi, the Host requests stat data from the Client and simulates
 a battle by reducing each monsters stats by eachother's attack power at the same time.
 Whoever has the most before K.O. wins. The client is updated with HP from the resulting battle.
+
 ![combat](./screens/combat.png)
+
 ![android-combat](./screens/android-combat.png)
 
 * View stats from toolbar
+
 ![stats](./screens/stats.png)
 
 # Room For Improvement
@@ -133,7 +143,6 @@ If everything goes well the desktop build and run scripts should be executable.
 
 ### Compiling On Android
 ![appa](./screens/android.png)
-![android-latest](./screens/android-latest.png)
 
 Follow [the first bit of this tutorial](https://www.apriorit.com/dev-blog/233-how-to-build-apk-file-from-command-line) to install Android build tools.
 
