@@ -19,6 +19,7 @@ Android version is at `1.5`
 * Stats are boosted if monster has a winning streak
 * Monster names are now read from table
 * Monsters can evolve all the way to Mega form
+* **Android** has a new activity (screen) to display stats 
 
 ### 1.4
 * Monster format keeps up with last feeding time - this affects hp and acts in place as hunger and 💩
