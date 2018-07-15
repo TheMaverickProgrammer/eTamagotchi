@@ -38,10 +38,14 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
     Bitmap monsters;
     Bitmap hostIcon;
     Bitmap bg;
+    Bitmap egg;
+    Bitmap poo;
     Sprite monsterSprite = null;
     Sprite bgSprite = null;
     Sprite hostSprite = null;
     Sprite attackSprite = null;
+    Sprite eggSprite = null;
+    Sprite pooSprite = null;
     boolean isSpriteLoaded = false;
     Paint paint;
 
@@ -89,9 +93,16 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       }
     }
 
-    public void joinBattle(String ip) {
+    public void joinBattle(String bc) {
       try {
-       battleThread = new BattleThread(ip, this.PORT, false, monster.getID(), monster.getHP(), monster.getMaxDamage());
+        String IP = BattleCode.unpack(bc);
+
+        if(bc.equals(getClientBattleCode())) {
+          // we're fighting ourselves
+          IP = "127.0.0.1";
+        }
+
+       battleThread = new BattleThread(IP, this.PORT, false, monster.getID(), monster.getHP(), monster.getMaxDamage());
        battleThread.start();
      } catch (IOException ex) {
        ex.printStackTrace();
@@ -111,6 +122,8 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       bg = getBitmapFromAsset(context.getAssets(), "bg.jpg");
       hostIcon = getBitmapFromAsset(context.getAssets(), "hosting.png");
       attackIcon = getBitmapFromAsset(context.getAssets(), "attack.png");
+      egg = getBitmapFromAsset(context.getAssets(), "egg.png");
+      poo = getBitmapFromAsset(context.getAssets(), "poo.png");
 
       // callback
       holder = getHolder();
@@ -126,18 +139,146 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       loadMonster();
 
       if(this.monster == null) {
-        int tileID = (int) Math.floor(Math.random()*((int)NUM_COLS*NUM_ROWS));
+        Long now = new Date().getTime();
+        int tileID = (int) Math.floor(Math.random()*((int)NUM_COLS));
         String name = getMonsterNameFromID(tileID);
+        String birthday = new SimpleDateFormat("MM/dd/yyyy").format(now);
+        Long lastFedTimestamp = now;
+        Long lastCareTimestamp = now;
         int HP = 1;
-        int maxHP = 6;
+        int maxHP = 5;
         int minDamage = 1;
         int maxDamage = ThreadLocalRandom.current().nextInt(1, 3 + 1); // min = 1, max = 3
         int xpos = 0; // move around inbetween the frame
         int wins = 0;
         int losses = 0;
 
-        this.monster = new Monster(tileID, name, HP, maxHP, minDamage, maxDamage, wins, losses);
+        monster = new Monster(tileID, birthday, name, lastFedTimestamp, lastCareTimestamp, HP, maxHP, minDamage, maxDamage, wins, losses);
       }
+
+      ActionListener hourlyPerformer = new ActionListener() {
+        public void actionPerformed(ActionEvent evt) {
+          // Real-time updates
+
+
+          // get hungry
+          monster.starve();
+        }
+      };
+
+      Timer hourlyUpdate = new Timer(1000*60*60, hourlyPerformer);
+      hourlyUpdate.start();
+    }
+
+    private static String getMonsterNameFromID(int ID) {
+      String name = new String("???");
+
+      String[] database = {
+        "Pururumon", "Tsubumon", "Chibomon", "Leafmon", "Jyarimon" ,
+        "Relemon"  , "Zerimon" , "Conomon", "Ketomon",   "Kiimon"  ,
+        "Poromon"  , "Upamon"  , "DemiVeemon", "Minomon", "Gigimon",
+        "Viximon"  , "Gummymon", "Kokomon" , "Hopmon" , "Yaamon",
+        "Hawkmon"  , "Armadillomon","Veemon","Wormmon","Guilmon",
+        "Renamon"  , "Terriermon", "Lopmon", "Monodramon", "Impmon",
+        "Aquilamon", "Ankylomon","ExVeemon", "Stingmon", "Growlmon",
+        "Kyubimon", "Gargomon", "Turuiemon", "Leomon", "Gaurdromon",
+        "Silphymon", "Shakkoumon", "Paildramon", "Dinobeemon", "WarGrowlmon",
+        "Taomon", "Rapidmon", "Antylamon", "Cyberdramon", "Andromon",
+        "Valkyrimon", "Vikemon", "Imperialdramon", "GranKuwagamon", "Gallantmon",
+        "Sakuyamon", "MegaGargomon", "MarineAngemon", "Justimon", "Beelzemon"
+      };
+
+      try{
+        name = database[ID];
+      }catch(Exception e) {
+        System.out.println("There's no digimon in the database for " + ID + "\n");
+      }
+
+      return name;
+    }
+
+    /*
+      This is a really basic evolution check
+      We see if it's a baby, trainee, rookie, champion, ultimate, or mega by the row it's in
+      Based on that, we see if it's had enough Wins/Losses to move up the ranks
+    */
+    private static boolean canEvolve(Monster monsterIn) {
+      // 0 - 9 BABY
+      if(monsterIn.getID() < 10) {
+        if(monsterIn.getDaysOld() > 5) {
+          return true;
+        }
+      } else if(monsterIn.getID() >= 10 && monsterIn.getID() < 20) {
+        // 10 - 19 TRAINEE
+        if(monsterIn.getDaysOld() > 12) {
+          return true;
+        }
+      } else if(monsterIn.getID() >= 20 && monsterIn.getID() < 30) {
+        // 20 - 29 ROOKIE
+        if(monsterIn.getDaysOld() > 19 && monsterIn.getWins() >= 10) {
+          return true;
+        }
+      } else if(monsterIn.getID() >= 30 && monsterIn.getID() < 40) {
+        // 30 - 39 CHAMPION
+        if(monsterIn.getDaysOld() > 25 && monsterIn.getWins() - monsterIn.getLosses() >= 30) {
+          return true;
+        }
+      } else if(monsterIn.getID() >= 40 && monsterIn.getID() < 50) {
+        // 40 - 49 ULTIMATE
+        if(monsterIn.getDaysOld() > 40 && monsterIn.getWins() - monsterIn.getLosses() >= 60) {
+          return true;
+        }
+      }
+
+      // Megas cannot evolve further
+
+      return false;
+    }
+
+    /*
+    This is a very basic evolution.
+    The immediate row in the spritesheet is the monster's next form
+    Randomly boost stats.
+    Winners get better boosts.
+    NOTE: This is where things like overall care score and mood would affect status
+          You can add this feature in
+    */
+    private static void evolve(Monster monsterIn) {
+      // The spritesheet as 10 monsters per row
+      int tileID =  monsterIn.getID()+10;
+      String name = getMonsterNameFromID(tileID);
+      String birthday = monsterIn.getBirthday();
+      Long lastFedTimestamp = monsterIn.getLastFedTimestamp();
+      Long lastCareTimestamp = monsterIn.getLastCareTimestamp();
+      int HP = monsterIn.getHP();
+      int maxHP = monsterIn.getMaxHP()+1;
+      int minDamage = monsterIn.getMinDamage() + ThreadLocalRandom.current().nextInt(0, 1 + 1); // min = 0, max = 1
+      int maxDamage = monsterIn.getMaxDamage() + ThreadLocalRandom.current().nextInt(1, 2 + 1); // min = 1, max = 2
+      int wins = monsterIn.getWins();
+      int losses = monsterIn.getLosses();
+
+      if(losses > 0) {
+        if((double)wins/(double)losses > 1) {
+          // Boost stats
+          minDamage += 1;
+          maxDamage += 1;
+        } else if((double)wins/(double)losses == 1) {
+          if((double)wins/(double)losses > 1) {
+            // Boost stats
+            minDamage += 1;
+            minDamage = Math.min(minDamage, maxDamage);
+          }
+        }
+      } else {
+        if(wins > 0) {
+          // Boost stats
+          minDamage += 1;
+          maxDamage += 1;
+        }
+      }
+
+      monster = new Monster(tileID, birthday, name, lastFedTimestamp, lastCareTimestamp, HP, maxHP, minDamage, maxDamage, wins, losses);
+      myMonsterImage = getMonsterTileFromID(monster.getID());
     }
 
     public String getMonsterNameFromID(int ID) {
@@ -164,7 +305,9 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       while(isThreadActive) {
         if(holder.getSurface().isValid()) {
 
-          if(!isSpriteLoaded && monster != null && monsters != null && bg !=null && hostIcon != null && attackIcon != null) {
+          if(!isSpriteLoaded && monster != null && monsters != null
+                && bg  != null && hostIcon != null && attackIcon != null
+                && egg != null && poo != null) {
             monsterSprite = getMonsterSpriteFromID(monsters, monster.getID());
             monsterSprite.setScale(2);
 
@@ -176,6 +319,10 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
 
             attackSprite = new Sprite(this, attackIcon);
             attackSprite.setScale(2);
+
+            eggSprite = new Sprite(this, egg);
+
+            pooSprite = new Sprite(this, poo);
 
             isSpriteLoaded = true;
           }
@@ -252,45 +399,100 @@ public class RenderView extends SurfaceView implements Runnable, OnTouchListener
       }
 
       if(!inBattle) {
-        int xPos = getWidth()/2;
-        // make it move around I guess
-        if(monster.getHP() > 1) {
-          xPos += (int)(Math.sin(System.currentTimeMillis()*0.0002)*getWidth()/4);
-          xPos -= (int)TILE_WIDTH/2;
-        }
-
-        if(isSpriteLoaded) {
-          monsterSprite.setPosX(xPos);
-          monsterSprite.setPosY(getHeight()/2);
-          monsterSprite.onDraw(canvas);
-        }
-
-        if(monster.getHP() > 1) {
-          paint.setColor(Color.BLACK);
-        } else {
-          paint.setColor(Color.RED);
-        }
-
-        for(int i = 0; i < monster.getMaxHP(); i++) {
-          if(i < monster.getHP()) {
-            paint.setStyle(Paint.Style.FILL);
-          } else {
-            // empty blocks
-            paint.setStyle(Paint.Style.STROKE);
+        if(monster.isEgg()) {
+          if(isSpriteLoaded) {
+            eggSprite.setPosX(getWidth()/2);
+            eggSprite.setPosY(getHeight()/2);
+            eggSprite.onDraw(canvas);
           }
-          int left = 10*(i+1)+(40*i);
-          int right = left + 30;
-          int top = 30;
-          int bottom = top + 30;
-          canvas.drawRect(left, top, right, bottom, paint);
-        }
-      }
+        } else {
+          // evolve if ready
+          if(RenderView.canEvolve(monster)) {
+            RenderView.evolve(monster);
+          }
 
-      try{
-        // give it that blocky 8bit movement
-        Thread.sleep(500);
-      }catch(InterruptedException e) {
-        // Shouldnt happen...
+          // If the monster has not beed cleaned up, show poop
+          // NOTE: This can affect other stats too like mood
+          long lastFedTimestamp =  monster.getLastFedTimestamp();
+          int hoursLastFed = monster.getHoursSinceLastFed();
+          int hoursLastCared = monster.getHoursSinceLastCared();
+
+          Random generator = new Random(hoursLastCared);
+
+          double inc = 0;
+
+          int extra = Math.max((hoursLastFed-hoursLastCared), 0);
+
+          int poopCount = 30; // After too many, stop
+          while(inc < (double)(hoursLastCared+extra)) {
+
+            // draw poop
+            double x = generator.nextDouble() * (0.5);
+            double y = generator.nextDouble() * (0.5);
+
+            if(isSpriteLoaded) {
+              pooSprite.setPosX(int)((double)x*(((double)super.getWidth()/2.0)+30.0));
+              pooSprite.setPosY(super.getHeight()/2) - (int)(y*(40.0/2.0));
+              pooSprite.onDraw(canvas);
+            }
+
+            // The bigger (stronger) they are, the more the poop
+            // The smaller, the less they poop
+            inc += 3.0/monster.getMaxHP();
+
+            poopCount--;
+
+            if (poopCount == 0) break;
+          }
+
+          int xPos = getWidth()/2;
+          // make it move around I guess
+          if(monster.getHP() > 1) {
+            xPos += (int)(Math.sin(System.currentTimeMillis()*0.0002)*getWidth()/4);
+            xPos -= (int)TILE_WIDTH/2;
+          }
+
+          if(isSpriteLoaded) {
+            monsterSprite.setPosX(xPos);
+            monsterSprite.setPosY(getHeight()/2);
+            monsterSprite.onDraw(canvas);
+          }
+
+          if(monster.getHP() > 1) {
+            paint.setColor(Color.BLACK);
+          } else {
+            paint.setColor(Color.RED);
+          }
+
+          int renderHP = monster.getMaxHP();
+
+          if(monster.isEgg()) {
+            renderHP = 1;
+          }
+
+          double scale = 6.0/(double)monster.getMaxHP();
+
+          for(int i = 0; i < renderHP; i++) {
+            if(i < monster.getHP()) {
+              paint.setStyle(Paint.Style.FILL);
+            } else {
+              // empty blocks
+              paint.setStyle(Paint.Style.STROKE);
+            }
+            double left   = scale*10.0*((double)i+1.0)+(scale*40.0*(double)i);
+            double right  = left + 30.0*scale;
+            double top    = 30.0*scale;
+            double bottom = top + 30.0*scale;
+            canvas.drawRect((int)left, (int)top, (int)right, (int)bottom, paint);
+          }
+        }
+
+        try{
+          // give it that blocky 8bit movement
+          Thread.sleep(500);
+        }catch(InterruptedException e) {
+          // Shouldnt happen...
+        }
       }
     }
 

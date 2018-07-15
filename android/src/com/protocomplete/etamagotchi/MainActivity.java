@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
                       // Toast the IP address...
 
                       // insert at 0 == prepend a string
-                      String text = "Monster location is " + getLocalIpAddress();
+                      String text = "Monster battle code is " + BattleCode.pack(getLocalIpAddress());
                       int duration = 40*1000; //Toast.LENGTH_SHORT;
 
                       Toast toast = Toast.makeText(MainActivity.this, (CharSequence)text, duration);
@@ -107,7 +107,8 @@ public class MainActivity extends Activity {
                       builder.setPositiveButton("FIGHT!", new DialogInterface.OnClickListener() {
                           @Override
                           public void onClick(DialogInterface dialog, int which) {
-                              String ip = input.getText().toString();
+                              String bc = input.getText().toString();
+                              String ip = BattleCode.unpack(bc);
                               view.joinBattle(ip);
                           }
                       });
