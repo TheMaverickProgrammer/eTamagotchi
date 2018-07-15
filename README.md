@@ -1,7 +1,12 @@
 # eTamagotchi
 
 Desktop version is at `1.5`
+
 Android version is at `1.3`
+
+![egg](./screens/egg.png)
+![life](./screens/moving.png)
+![mega](./screens/mega.png)
 
 ## Version
 
@@ -91,24 +96,6 @@ and forth the BattleThread and the Render instances instead of how I'm doing it.
 * It's fine in Java ~~Unsure of the thread saftey. Each time a host or client is established a new thread is made. This can't be good.~~
 
 * Creating new graphics each render call in P2P for opponent has to go
-
-## Gameplay Improvement
-### Things you can contribute
-* Read from a source (database) the correct digimon names, stats, etc...
-
-* ~~Save the tamagotchi state data to a file and load~~
-
-* Reward battling monsters with EXP points (e.g. winners +3 EXP, losers +1 EXP)
-
-* ~~Decrease health after X hours to reinforce feeding~~
-
-* Add mood (hidden) stat
-
-* ~~💩~~
-
-* Evolution trees
-
-* Animations
 
 ## Language
 Android SDK is the development kit you'll be dealing with, and with source compatibility you'll use Java 6, 7 or 8.
