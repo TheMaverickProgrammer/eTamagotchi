@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+##################################################################
+#  PREPARE ENVIRONMENT
+##################################################################
+path=$(pwd)
+rm -rf bin
+rm -rf gen
+mkdir bin
+mkdir gen
+
+##################################################################
+#  SET VARS
+##################################################################
+
+# Set your application name
+APP_NAME="eTamagotchi"
+
+# Define minimal Android revision
+ANDROID_REV="27.0.3"
+ANDROID_PLATFORM_REV="android-24"
+
+# Define Java compiler command
+JAVAC="${JAVA_BIN}/javac -source 1.7 -target 1.7 -bootclasspath "${JAVA_HOME}/jre/lib/rt.jar" -classpath ${ANDROID_SDK}/platforms/${ANDROID_PLATFORM_REV}/android.jar"
+JAVAC_BUILD="${JAVAC} -sourcepath src -sourcepath gen -d bin"
+
+##################################################################
+#  PROCESS
+##################################################################
+
+# Generate R class and pack resources and assets into resources.ap_ file
+${ANDROID_SDK}/build-tools/${ANDROID_REV}/aapt package -v -f -I ${ANDROID_SDK}/platforms/${ANDROID_PLATFORM_REV}/android.jar -M AndroidManifest.xml -A "assets" -S "res" -m -J "gen" -F bin/resources.ap_
+
+# Compile sources. All *.class files will be put into the bin folder
+${JAVAC_BUILD} src/com/protocomplete/etamagotchi/MainActivity.java
+
+# Generate dex files with compiled Java classes
+${ANDROID_SDK}/build-tools/${ANDROID_REV}/dx --dex --output=${path}/bin/classes.dex ${path}/bin
+
+${ANDROID_SDK}/build-tools/${ANDROID_REV}/aapt package -f -M AndroidManifest.xml -S res/ -I ${ANDROID_SDK}/platforms/${ANDROID_PLATFORM_REV}/android.jar -F bin/${APP_NAME}.unsigned.apk bin/
+
+${ANDROID_SDK}/build-tools/${ANDROID_REV}/zipalign -f -p 4 ${path}/bin/${APP_NAME}.unsigned.apk ${path}/bin/${APP_NAME}.aligned.apk
+
+# Create signed Android application 
+${ANDROID_SDK}/build-tools/${ANDROID_REV}/apksigner sign --ks ${path}/keystore/etamagotchi-release-key.keystore  --ks-key-alias "eTamagotchi" --out ${path}/bin/${APP_NAME}.apk ${path}/bin/${APP_NAME}.aligned.apk
+
+# Delete temp file
+rm bin/*.ap_
+rm bin/*.dex

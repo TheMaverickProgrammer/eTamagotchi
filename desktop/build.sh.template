@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+rm com/protocomplete/etamagotchi/*.class
+javac com/protocomplete/etamagotchi/*.java
+jar cvfm eTamagotchi.jar com/protocomplete/etamagotchi/manifest.txt com/protocomplete/etamagotchi/*.class com/protocomplete/etamagotchi/*.png
